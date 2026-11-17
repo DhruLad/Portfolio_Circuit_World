@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dhru Lad: Circuit World</title>
+<meta name="description" content="A playable engineering portfolio. Walk a circuit board and open Dhru Lad's FPGA, PCB, embedded, motor, avionics and machine learning projects.">
+<!-- Share preview. After deploying, change og:image and og:url to full https:// addresses. -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Dhru Lad: Circuit World, a playable engineering portfolio">
+<meta property="og:description" content="Walk a circuit board and open each project: FPGA, PCB design, embedded systems, a BLDC motor, rocket avionics and machine learning.">
+<meta property="og:image" content="assets/preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="game" aria-label="Circuit World: a top-down board to explore. Use Quick View for a plain list of every project."></canvas>
+
+<noscript>
+  <div class="noscript">
+    <h1>Dhru Lad</h1>
+    <p>Electrical Engineering &amp; Artificial Intelligence Systems Engineering, Western University</p>
+    <p>This portfolio is a small browser game and needs JavaScript. You can also find me on
+      <a href="https://www.linkedin.com/in/dhru-lad/">LinkedIn</a>.</p>
+  </div>
+</noscript>
+
+<header id="hud" hidden>
+  <span id="count" class="pill" aria-live="polite"></span>
+  <nav class="hud-buttons" aria-label="Game menu">
+    <button type="button" id="btnMap">Map</button>
+    <button type="button" id="btnQuick">Quick View</button>
+    <a id="btnResume" class="btn" target="_blank" rel="noopener" hidden>R&eacute;sum&eacute;</a>
+    <button type="button" id="btnContact">Contact</button>
+    <button type="button" id="btnSound" aria-pressed="false">Sound: off</button>
+  </nav>
+</header>
+
+<p id="hint" hidden></p>
+<button type="button" id="openBtn" hidden></button>
+
+<section id="title" class="overlay title" aria-labelledby="titleName">
+  <div class="title-card">
+    <canvas id="portrait" width="24" height="24" aria-hidden="true"></canvas>
+    <p class="eyebrow">Circuit World &middot; a playable portfolio</p>
+    <h1 id="titleName"></h1>
+    <p id="titleTag" class="tagline"></p>
+    <div class="title-buttons">
+      <button type="button" id="btnPlay" class="primary">Play</button>
+      <button type="button" id="btnTitleQuick">Quick View</button>
+      <a id="btnTitleResume" class="btn" target="_blank" rel="noopener" hidden>R&eacute;sum&eacute;</a>
+      <a id="btnTitleLinkedIn" class="btn" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+    <p class="fine">Short on time? Quick View lists every project on one page.</p>
+  </div>
+</section>
+
+<section id="panel" class="overlay sheet-wrap" role="dialog" aria-modal="true" aria-labelledby="panelTitle" hidden>
+  <article class="sheet">
+    <button type="button" class="close" data-close aria-label="Close">&times;</button>
+    <div id="panelBody"></div>
+  </article>
+</section>
+
+<section id="map" class="overlay sheet-wrap" role="dialog" aria-modal="true" aria-labelledby="mapTitle" hidden>
+  <article class="sheet">
+    <button type="button" class="close" data-close aria-label="Close">&times;</button>
+    <p class="eyebrow">Map</p>
+    <h2 id="mapTitle">Jump to any zone</h2>
+    <div id="mapBoard" class="map-board"><canvas id="mapCanvas"></canvas></div>
+    <ol id="mapList" class="map-list"></ol>
+  </article>
+</section>
+
+<section id="quick" class="overlay quick" aria-labelledby="quickName" hidden>
+  <div class="quick-inner">
+    <div id="quickBody"></div>
+  </div>
+</section>
+
+<section id="finale" class="overlay sheet-wrap" role="dialog" aria-modal="true" aria-labelledby="finaleTitle" hidden>
+  <article class="sheet finale">
+    <button type="button" class="close" data-close aria-label="Close">&times;</button>
+    <p class="eyebrow">Board fully powered</p>
+    <h2 id="finaleTitle">Let's talk</h2>
+    <p>You have explored every project on the board. If the work fits what your team is building, I would like to hear from you.</p>
+    <div id="finaleContact" class="contact-row"></div>
+    <div class="sheet-foot"><button type="button" data-close>Keep exploring</button></div>
+  </article>
+</section>
+
+<script src="content.js"></script>
+<script src="js/art.js"></script>
+<script src="js/world.js"></script>
+<script src="js/demos.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>
