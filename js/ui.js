@@ -58,7 +58,14 @@
       var box = el(withDemo ? "div" : "details", "story");
       box.appendChild(el(withDemo ? "h3" : "summary", null, "How I approached it"));
       var dl = el("dl");
-      steps.forEach(function (s) { if (p.story[s[0]]) { dl.appendChild(el("dt", null, s[1])); dl.appendChild(el("dd", null, p.story[s[0]])); } });
+      steps.forEach(function (s) {
+        var v = p.story[s[0]];
+        if (!v) return;
+        dl.appendChild(el("dt", null, s[1]));
+        var dd = el("dd");
+        String(v).split(/\n\s*\n/).forEach(function (para) { dd.appendChild(el("p", null, para)); });
+        dl.appendChild(dd);
+      });
       box.appendChild(dl); f.appendChild(box);
     }
     if (p.built && p.built.length) { f.appendChild(el("h3", null, "What I built")); f.appendChild(list(p.built)); }
@@ -152,21 +159,24 @@
     $("game").focus();
   }
 
+  function meta(p) { return [p.date, p.org].filter(Boolean).join(" · "); }
+
   function openProject(id, viaGame) {
-    var i = projects.findIndex(function (p) { return p.id === id; });
+    var order = world.order;
+    var i = order.findIndex(function (p) { return p.id === id; });
     if (i < 0) return;
-    var p = projects[i], body = $("panelBody");
+    var p = order[i], body = $("panelBody");
     if (stopDemo) { stopDemo(); stopDemo = null; }
     body.textContent = "";
     body.appendChild(el("p", "eyebrow", p.zone));
     var h2 = el("h2", null, p.title); h2.id = "panelTitle"; body.appendChild(h2);
-    body.appendChild(el("p", "meta", [p.date, p.org].filter(Boolean).join(" · ")));
+    if (meta(p)) body.appendChild(el("p", "meta", meta(p)));
     var frag = projectBody(p, true), demo = frag._demo;
     body.appendChild(frag);
     var foot = el("div", "sheet-foot");
     foot.appendChild(button("Back to the board", function () { hide(); }));
-    if (projects.length > 1) {
-      var nextP = projects[(i + 1) % projects.length];
+    if (order.length > 1) {
+      var nextP = order[(i + 1) % order.length];
       foot.appendChild(button("Next: " + nextP.zone + " →", function () {
         var z = world.zones.filter(function (zz) { return zz.project === nextP; })[0];
         if (z) engine.teleport(z);
@@ -195,25 +205,32 @@
   }
 
   function openMap() {
-    var c = $("mapCanvas"), board = $("mapBoard"), ol = $("mapList");
+    var c = $("mapCanvas"), board = $("mapBoard"), list = $("mapList");
     c.width = world.W / 2; c.height = world.H / 2;
     var g = c.getContext("2d"); g.imageSmoothingEnabled = false; g.drawImage(world.canvas, 0, 0, c.width, c.height);
     Array.prototype.slice.call(board.querySelectorAll(".pin")).forEach(function (n) { n.remove(); });
-    ol.textContent = "";
+    list.textContent = "";
     function go(target) { return function () { hide(); engine.teleport(target); }; }
-    var stops = [{ label: world.hub.name + ": about me", num: "M", target: "hub", x: world.hub.rect.x + world.hub.rect.w / 2, y: world.hub.rect.y + world.hub.rect.h / 2 }];
-    world.zones.forEach(function (z) {
-      if (!z.project) return;
-      stops.push({ label: (engine.isExplored(z.project.id) ? "✓ " : "") + z.name, num: String(z.number), target: z, x: z.rect.x + z.rect.w / 2, y: z.rect.y + z.rect.h / 2 });
-    });
-    stops.forEach(function (s) {
-      var pin = button(s.num, go(s.target), "pin");
-      pin.style.left = (s.x / world.W * 100) + "%"; pin.style.top = (s.y / world.H * 100) + "%";
-      pin.setAttribute("aria-label", "Go to " + s.label);
+    function stop(label, num, target, r) {
+      var pin = button(num, go(target), "pin");
+      pin.style.left = ((r.x + r.w / 2) / world.W * 100) + "%"; pin.style.top = ((r.y + r.h / 2) / world.H * 100) + "%";
+      pin.setAttribute("aria-label", "Go to " + label);
       board.appendChild(pin);
-      var li = el("li"), b = button("", go(s.target));
-      b.appendChild(el("span", "num", s.num)); b.appendChild(document.createTextNode(s.label));
-      li.appendChild(b); ol.appendChild(li);
+      var li = el("li"), b = button("", go(target));
+      b.appendChild(el("span", "num", num)); b.appendChild(document.createTextNode(label));
+      li.appendChild(b);
+      return li;
+    }
+    var home = el("ol", "map-list");
+    home.appendChild(stop(world.hub.name + ": about me", "M", "hub", world.hub.rect));
+    list.appendChild(home);
+    world.districts.forEach(function (d) {
+      var zs = world.zones.filter(function (z) { return z.project && z.district === d.name; });
+      if (!zs.length) return;
+      list.appendChild(el("h3", "map-group", d.name));
+      var ol = el("ol", "map-list");
+      zs.forEach(function (z) { ol.appendChild(stop((engine.isExplored(z.project.id) ? "\u2713 " : "") + z.name, String(z.number), z, z.rect)); });
+      list.appendChild(ol);
     });
     show("map");
   }
@@ -227,13 +244,18 @@
     var row = contactRow(el("div", "contact-row"));
     row.insertBefore(button(started ? "Back to the game" : "Play the game", function () { if (started) hide(); else { hide(true); start(); } }), row.firstChild);
     body.appendChild(row);
-    body.appendChild(el("h2", null, "Projects"));
-    projects.forEach(function (p) {
-      var card = el("article", "card"); card.id = "q-" + p.id;
-      card.appendChild(el("h4", null, p.title));
-      card.appendChild(el("p", "meta", [p.date, p.org].filter(Boolean).join(" · ")));
-      card.appendChild(projectBody(p, false));
-      body.appendChild(card);
+    var areas = world.districts.filter(function (d) { return world.order.some(function (p) { return (p.category || "Other projects") === d.name; }); });
+    body.appendChild(el("p", "quick-lead", world.order.length + " projects in " + areas.length + " areas. Open \u201cHow I approached it\u201d on any card for the problem, what I did, why, and the result."));
+    areas.forEach(function (d) {
+      body.appendChild(el("h2", null, d.name));
+      world.order.forEach(function (p) {
+        if ((p.category || "Other projects") !== d.name) return;
+        var card = el("article", "card"); card.id = "q-" + p.id;
+        card.appendChild(el("h4", null, p.title));
+        if (meta(p)) card.appendChild(el("p", "meta", meta(p)));
+        card.appendChild(projectBody(p, false));
+        body.appendChild(card);
+      });
     });
     body.appendChild(el("h2", null, "About"));
     body.appendChild(aboutBody());

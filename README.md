@@ -1,6 +1,6 @@
 # Circuit World
 
-Dhru Lad's playable engineering portfolio. The map is a circuit board, each project is a component on it, and every project you open lights up its trace.
+Dhru Lad's playable engineering portfolio. The map is a circuit board split into seven districts, each of the 22 projects is a component on it, and every project you open lights up its trace back to the MCU hub.
 
 No frameworks and no build step: plain HTML, CSS and JavaScript.
 
@@ -10,11 +10,12 @@ Double-click `index.html`. That's all.
 
 ## Add a project
 
-1. Open `content.js`, copy one block inside `projects`, and change the text.
-2. Optional: put photos in `assets/projects/<id>/` and list the file names in `photos`.
-3. Save. The board, the project panel and Quick View all pick it up.
+1. Open `content.js`, copy one project block inside `projects`, and change the text.
+2. Set `category` to an existing area to put it in that district, or to a new name to create a new district.
+3. Optional: put photos in `assets/projects/<id>/` and list the file names in `photos`.
+4. Save. The board, the project panels, the map and Quick View all pick it up.
 
-New projects fill the next empty socket, clockwise from the top-left. Set `socket: 9` (1 to 12) to choose a spot. `sprite` and `demo` are optional; the names available are listed at the top of `content.js`.
+Each district holds four buildings per row and grows a new row when it fills. `sprite` and `demo` are optional; the names available are listed at the top of `content.js`.
 
 ## Before you share it
 
@@ -41,7 +42,7 @@ style.css           title screen, top bar, panels, Quick View
 content.js          every word and fact about Dhru and his projects
 js/engine.js        game loop, keyboard and touch input, camera, collision
 js/art.js           palette, sprite and tile pixel grids, drawing helpers
-js/world.js         builds the board from content.js: hub, sockets, zones, traces
+js/world.js         builds the board from content.js: hub, districts, buildings, traces
 js/ui.js            title, top bar, project panel, map, Quick View, finale
 js/demos.js         mini-demos, registered by name
 assets/projects/    project photos, one folder per project id

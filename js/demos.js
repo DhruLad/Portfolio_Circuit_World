@@ -208,11 +208,11 @@
     return st.stop;
   };
 
-  /* Launch Pad: ascent, then air brakes. */
+  /* Launch Pad: the flight computer reads altitude from its barometer. */
   demos.rocket = function (el) {
-    el.appendChild(h("p", { "class": "demo-title" }, "Try it: launch, then watch the air brakes deploy"));
+    el.appendChild(h("p", { "class": "demo-title" }, "Try it: launch, and follow the barometer"));
     var t0 = null, now = 0;
-    var status = h("p", { "class": "demo-readout", "aria-live": "polite" }, "On the pad. Avionics ready.");
+    var status = h("p", { "class": "demo-readout", "aria-live": "polite" }, "On the pad. The flight computer's barometer is reading ground pressure.");
     var st = stage(el, 480, 220, function (g, t) {
       now = t;
       var W = 480, H = 220, e = t0 === null ? -1 : t - t0;
@@ -221,9 +221,9 @@
       var y = 150, brakes = false, flame = false;
       if (e >= 0 && e < 3) { y = 150 - 110 * (1 - Math.pow(1 - e / 3, 2)); flame = e < 2.2; }
       else if (e >= 3 && e < 5.5) { y = 40 + (e - 3) * 3; brakes = true; }
-      else if (e >= 5.5) { t0 = null; status.textContent = "On the pad. Avionics ready."; btn.disabled = false; }
-      if (e >= 0 && e < 3) status.textContent = "Ascent. Telemetry streaming to the ground station.";
-      if (brakes) status.textContent = "Air brakes deployed.";
+      else if (e >= 5.5) { t0 = null; status.textContent = "On the pad. The flight computer's barometer is reading ground pressure."; btn.disabled = false; }
+      if (e >= 0 && e < 3) status.textContent = "Ascent: pressure falls, and the flight computer turns it into altitude.";
+      if (brakes) status.textContent = "Coasting to apogee. That altitude reading is why the BMP390 had to match the BMP180.";
       g.fillStyle = "#2F5D3A"; g.fillRect(0, 196, W, 24); g.fillStyle = "#6B7280"; g.fillRect(190, 188, 100, 10);
       g.fillStyle = "#8A8F9E"; g.fillRect(206, 110, 4, 80); g.fillRect(206, 110, 16, 3);
       /* telemetry: dashes from the rocket to a ground antenna */
@@ -238,13 +238,13 @@
       g.fillStyle = "#4F2683"; g.fillRect(x - 5, y - 6, 10, 6); g.fillRect(x - 3, y - 10, 6, 4); g.fillRect(x - 1, y - 13, 2, 3);
       g.fillRect(x - 13, y + 28, 6, 10); g.fillRect(x + 7, y + 28, 6, 10);
       g.fillStyle = "#7FD4FF"; g.fillRect(x - 3, y + 6, 6, 6);
-      if (brakes) { g.fillStyle = "#D94C4C"; g.fillRect(x - 17, y + 14, 10, 3); g.fillRect(x + 7, y + 14, 10, 3); }
+      
     });
     st.canvas.setAttribute("aria-label", "A rocket on a launch pad with a telemetry link to a ground antenna");
     var row = h("div", { "class": "demo-row" });
     var btn = h("button", { type: "button", "class": "demo-btn" }, "Launch");
     btn.addEventListener("click", function () {
-      if (reduced) { status.textContent = "Ascent with telemetry streaming, then the air brakes deploy near the top of the flight."; return; }
+      if (reduced) { status.textContent = "Ascent: pressure falls and the flight computer turns it into altitude, all the way to apogee."; return; }
       if (t0 === null) { t0 = now; btn.disabled = true; }
     });
     row.appendChild(btn); el.appendChild(row); el.appendChild(status);
@@ -259,12 +259,299 @@
       ["SARIMA", "Seasonal ARIMA: the statistical baseline the neural models were measured against."],
       ["RNN", "Recurrent neural network: reads the series one month at a time and carries a hidden state forward."],
       ["GRU", "Gated recurrent unit: a recurrent network whose gates help it hold on to longer-term patterns."],
-      ["TCN", "Temporal Convolutional Network: stacked dilated convolutions over the series. After Bayesian tuning, this was the model that excelled on sparse, high-variance data."]
+      ["TCN", "Temporal Convolutional Network: stacked dilated convolutions over the series. After Bayesian tuning, this was the model that excelled on the sparse, high-variance data and outperformed the SARIMA baselines."]
     ];
     var out = h("p", { "class": "demo-readout", "aria-live": "polite" }, info[3][1]);
     choice(el, info.map(function (i) { return i[0]; }), function (i) { out.textContent = info[i][1]; }, 3);
     el.appendChild(out);
     return function () {};
+  };
+
+  /* Op-Amp Fab: a Bode plot from a two-pole model fitted to the measured specs. */
+  demos.bode = function (el) {
+    el.appendChild(h("p", { "class": "demo-title" }, "Try it: sweep the frequency on the Bode plot"));
+    var A0 = Math.pow(10, 72 / 20), fu = 28e6, PM = 62;
+    var p2 = fu / Math.tan((90 - PM) * Math.PI / 180);
+    var k2 = Math.sqrt(1 + Math.pow(fu / p2, 2));
+    var p1 = fu / Math.sqrt(Math.pow(A0 / k2, 2) - 1);
+    function mag(f) { return 20 * Math.log10(A0 / (Math.sqrt(1 + (f / p1) * (f / p1)) * Math.sqrt(1 + (f / p2) * (f / p2)))); }
+    function ph(f) { return -(Math.atan(f / p1) + Math.atan(f / p2)) * 180 / Math.PI; }
+    var lo = 1, hi = 9, pos = 0.82;
+    function fOf(u) { return Math.pow(10, lo + u * (hi - lo)); }
+    function fmt(f) {
+      if (f >= 1e9) return (f / 1e9).toFixed(2) + " GHz";
+      if (f >= 1e6) return (f / 1e6).toFixed(f >= 1e8 ? 0 : 1) + " MHz";
+      if (f >= 1e3) return (f / 1e3).toFixed(f >= 1e5 ? 0 : 1) + " kHz";
+      return f.toFixed(0) + " Hz";
+    }
+    var st = stage(el, 480, 250, function (g) {
+      var L = 52, R = 468, t1 = 12, b1 = 116, t2 = 136, b2 = 226;
+      function X(f) { return L + (Math.log10(f) - lo) / (hi - lo) * (R - L); }
+      function Y1(db) { return b1 - (db + 20) / 100 * (b1 - t1); }
+      function Y2(deg) { return t2 + (-deg) / 180 * (b2 - t2); }
+      g.fillStyle = "#04140E"; g.fillRect(0, 0, 480, 250);
+      g.strokeStyle = "#0E3A29"; g.lineWidth = 1;
+      for (var d = lo; d <= hi; d++) { var xx = Math.round(X(Math.pow(10, d))) + 0.5; g.beginPath(); g.moveTo(xx, t1); g.lineTo(xx, b1); g.moveTo(xx, t2); g.lineTo(xx, b2); g.stroke(); }
+      [0, 40, 80].forEach(function (db) { var yy = Math.round(Y1(db)) + 0.5; g.beginPath(); g.moveTo(L, yy); g.lineTo(R, yy); g.stroke(); });
+      [-90, -180].forEach(function (dg) { var yy = Math.round(Y2(dg)) + 0.5; g.beginPath(); g.moveTo(L, yy); g.lineTo(R, yy); g.stroke(); });
+      g.fillStyle = "#9DBFB0"; g.font = "600 10px ui-monospace, Menlo, monospace"; g.textAlign = "right"; g.textBaseline = "middle";
+      [0, 40, 80].forEach(function (db) { g.fillText(db + " dB", L - 6, Y1(db)); });
+      [0, -90, -180].forEach(function (dg) { g.fillText(dg + "°", L - 6, Y2(dg)); });
+      g.textAlign = "center"; g.textBaseline = "top";
+      [[1, "10 Hz"], [3, "1 kHz"], [5, "100 kHz"], [7, "10 MHz"], [9, "1 GHz"]].forEach(function (q) { g.fillText(q[1], Math.min(R - 18, Math.max(L + 16, X(Math.pow(10, q[0])))), b2 + 6); });
+      /* curves */
+      g.lineWidth = 2.5; g.lineJoin = "round";
+      g.strokeStyle = "#5CFF9D"; g.beginPath();
+      for (var i = 0; i <= 300; i++) { var f = fOf(i / 300), yv = Math.max(t1, Y1(mag(f))); if (i) g.lineTo(L + i / 300 * (R - L), yv); else g.moveTo(L, yv); }
+      g.stroke();
+      g.strokeStyle = "#7FD4FF"; g.beginPath();
+      for (var j = 0; j <= 300; j++) { var f2 = fOf(j / 300), yp = Y2(ph(f2)); if (j) g.lineTo(L + j / 300 * (R - L), yp); else g.moveTo(L, yp); }
+      g.stroke();
+      /* unity-gain crossover and phase margin */
+      var xu = X(fu);
+      g.setLineDash([3, 4]); g.strokeStyle = "#FFD166"; g.lineWidth = 1; g.beginPath(); g.moveTo(xu, t1); g.lineTo(xu, b2); g.stroke(); g.setLineDash([]);
+      g.strokeStyle = "#FFD166"; g.lineWidth = 3; g.beginPath(); g.moveTo(xu, Y2(ph(fu))); g.lineTo(xu, Y2(-180)); g.stroke();
+      g.fillStyle = "#FFD166"; g.font = "700 11px ui-monospace, Menlo, monospace"; g.textAlign = "right"; g.textBaseline = "middle";
+      g.fillText("62° margin", xu - 6, (Y2(ph(fu)) + Y2(-180)) / 2);
+      g.fillText("0 dB at 28 MHz", xu - 6, Y1(0) + 12);
+      g.fillStyle = "#5CFF9D"; g.fillText("gain", L + 6, Y1(76) - 2);
+      g.fillStyle = "#7FD4FF"; g.fillText("phase", L + 6, Y2(-14));
+      /* cursor */
+      var fc = fOf(pos), xc = L + pos * (R - L);
+      g.strokeStyle = "rgba(255,255,255,0.6)"; g.lineWidth = 1; g.beginPath(); g.moveTo(xc, t1); g.lineTo(xc, b2); g.stroke();
+      g.fillStyle = "#FFFFFF";
+      g.beginPath(); g.arc(xc, Math.max(t1, Y1(mag(fc))), 4, 0, 7); g.fill();
+      g.beginPath(); g.arc(xc, Y2(ph(fc)), 4, 0, 7); g.fill();
+    });
+    st.canvas.setAttribute("aria-label", "Bode plot of the op-amp: gain falls through 0 dB at 28 MHz with 62 degrees of phase margin");
+    var wrap = h("label", { "class": "demo-slider" });
+    var txt = h("span", { "aria-live": "polite" }, "");
+    var s = h("input", { type: "range", min: "0", max: "1000", value: String(pos * 1000), "aria-label": "Frequency" });
+    function show() { var f = fOf(pos); txt.textContent = fmt(f) + ": gain " + mag(f).toFixed(1) + " dB, phase " + ph(f).toFixed(0) + "°"; }
+    s.addEventListener("input", function () { pos = s.value / 1000; show(); st.redraw(); });
+    wrap.appendChild(txt); wrap.appendChild(s); el.appendChild(wrap); show();
+    note(el, "Curves come from a two-pole model fitted to the measured 72 dB gain, 28 MHz bandwidth and 62° phase margin, not from simulation output.");
+    return st.stop;
+  };
+
+  /* VCO Ring: control voltage sets frequency. */
+  demos.vco = function (el) {
+    el.appendChild(h("p", { "class": "demo-title" }, "Try it: raise the control voltage"));
+    var dv = 0.45, phase = 0, prev = 0;
+    function fGHz() { return 0.6 + 2.0 * dv; }
+    var st = stage(el, 480, 200, function (g, t) {
+      var dt = Math.min(0.05, t - prev); prev = t;
+      phase += dt * fGHz() * 0.45;
+      g.fillStyle = "#04140E"; g.fillRect(0, 0, 480, 200);
+      var cx = 110, cy = 100, R = 66;
+      g.strokeStyle = "#B08D3C"; g.lineWidth = 3; g.beginPath(); g.arc(cx, cy, R, 0, 7); g.stroke();
+      var u = (phase * 2) % 1;
+      for (var i = 0; i < 5; i++) {
+        var a = -Math.PI / 2 + i * Math.PI * 2 / 5, active = Math.floor(u * 5) === i;
+        g.save(); g.translate(cx + Math.cos(a) * R, cy + Math.sin(a) * R); g.rotate(a + Math.PI / 2);
+        g.fillStyle = active ? "#FFD166" : "#C9CCD6";
+        g.beginPath(); g.moveTo(-11, -12); g.lineTo(-11, 12); g.lineTo(12, 0); g.closePath(); g.fill();
+        g.beginPath(); g.arc(16, 0, 4, 0, 7); g.fill();
+        g.restore();
+      }
+      var ea = -Math.PI / 2 + u * Math.PI * 2;
+      g.fillStyle = "#5CFF9D"; g.beginPath(); g.arc(cx + Math.cos(ea) * R, cy + Math.sin(ea) * R, 6, 0, 7); g.fill();
+      g.fillStyle = "#9DBFB0"; g.font = "600 11px ui-monospace, Menlo, monospace"; g.textAlign = "center"; g.textBaseline = "middle";
+      g.fillText("5 stages", cx, cy);
+      /* output waveform */
+      var x0 = 230, x1 = 466, y0 = 50, y1 = 150;
+      g.strokeStyle = "#0E3A29"; g.lineWidth = 1; g.strokeRect(x0 + 0.5, y0 - 20.5, x1 - x0, y1 - y0 + 40);
+      g.strokeStyle = "#5CFF9D"; g.lineWidth = 2; g.beginPath();
+      var cycles = 1.5 + fGHz() * 2.2;
+      for (var p = 0; p <= x1 - x0; p++) {
+        var v = ((p / (x1 - x0)) * cycles + phase) % 1, yy = v < 0.5 ? y0 : y1;
+        if (p) g.lineTo(x0 + p, yy); else g.moveTo(x0, yy);
+      }
+      g.stroke();
+      g.fillStyle = "#FFD166"; g.font = "700 16px ui-monospace, Menlo, monospace"; g.textAlign = "left"; g.textBaseline = "alphabetic";
+      g.fillText(fGHz().toFixed(2) + " GHz", x0 + 6, y1 + 34);
+    });
+    st.canvas.setAttribute("aria-label", "A five-stage ring oscillator and its output waveform");
+    var wrap = h("label", { "class": "demo-slider" });
+    var txt = h("span", null, "");
+    var s = h("input", { type: "range", min: "0", max: "900", step: "10", value: "450", "aria-label": "Control voltage above the bottom of the range, in millivolts" });
+    function show() { txt.textContent = "Control voltage: +" + Math.round(dv * 1000) + " mV from the bottom of the range"; }
+    s.addEventListener("input", function () { dv = s.value / 1000; show(); });
+    wrap.appendChild(txt); wrap.appendChild(s); el.appendChild(wrap); show();
+    note(el, "Illustrative animation, slowed down about a billion times. It uses the measured 0.6–2.4 GHz range and ≈2 GHz/V gain, treated as exactly linear.");
+    return st.stop;
+  };
+
+  /* RISC-V Core: step a 5-stage pipeline through a load-use stall and a taken branch. */
+  demos.pipeline = function (el) {
+    el.appendChild(h("p", { "class": "demo-title" }, "Try it: step the clock through two hazards"));
+    var prog = [["lw", "x1, 0(x2)"], ["add", "x3, x1, x4"], ["sub", "x5, x3, x6"], ["beq", "x5, x0, L"], ["or", "x7, x8, x9"], ["and", "x7, x8, x9"], ["xor", "x10, x5, x1"]];
+    var B = "b";
+    function F(i) { return { i: i, flushed: true }; }
+    var C = [
+      { s: [0, null, null, null, null], n: "Cycle 1: lw is fetched." },
+      { s: [1, 0, null, null, null], n: "Cycle 2: add is fetched while lw is decoded." },
+      { s: [2, 1, 0, null, null], n: "Cycle 3: add needs x1, but lw is only now in Execute. The loaded value won't exist until after Memory: a load-use hazard." },
+      { s: [2, 1, B, 0, null], n: "Cycle 4: stall. add and sub hold where they are and a bubble goes into Execute. This is the one case forwarding can't fix." },
+      { s: [3, 2, 1, B, 0], n: "Cycle 5: x1 is forwarded from write-back straight into Execute for add." },
+      { s: [4, 3, 2, 1, B], n: "Cycle 6: sub needs x3 from add, one stage ahead. It is forwarded from Memory, so there is no stall." },
+      { s: [5, 4, 3, 2, 1], n: "Cycle 7: beq is decided in Execute, and it is taken. or and and were already fetched from the wrong path." },
+      { s: [6, F(5), F(4), 3, 2], n: "Cycle 8: flush. The two wrong-path instructions become bubbles, and fetch restarts at L." },
+      { s: [null, 6, B, B, 3], n: "Cycle 9: one cycle was lost to the load-use stall and two to the branch." },
+      { s: [null, null, 6, B, B], n: "Cycle 10: xor executes." },
+      { s: [null, null, null, 6, B], n: "Cycle 11." },
+      { s: [null, null, null, null, 6], n: "Cycle 12: xor writes back. Five useful instructions took 12 cycles, against 9 with no hazards." }
+    ];
+    var names = ["Fetch", "Decode", "Execute", "Memory", "Write-back"];
+    var pipe = h("div", { "class": "pipe" }), cells = [];
+    names.forEach(function (n) {
+      var c = h("div", { "class": "pipe-stage" });
+      c.appendChild(h("span", { "class": "pipe-name" }, n));
+      var v = h("span", { "class": "pipe-op" }); c.appendChild(v);
+      pipe.appendChild(c); cells.push(v);
+    });
+    el.appendChild(pipe);
+    var noteP = h("p", { "class": "demo-readout", "aria-live": "polite" });
+    var row = h("div", { "class": "demo-row" });
+    var step = h("button", { type: "button", "class": "demo-btn" }, "Step clock");
+    var reset = h("button", { type: "button", "class": "demo-btn" }, "Reset");
+    row.appendChild(step); row.appendChild(reset);
+    el.appendChild(row); el.appendChild(noteP);
+    var cyc = -1;
+    function render() {
+      var cur = cyc >= 0 ? C[cyc].s : [null, null, null, null, null];
+      cur.forEach(function (x, k) {
+        var v = cells[k]; v.textContent = ""; v.className = "pipe-op";
+        if (x === null) { v.textContent = "—"; v.className += " empty"; }
+        else if (x === B) { v.textContent = "bubble"; v.className += " bubble"; }
+        else if (typeof x === "object") { v.appendChild(h("b", null, prog[x.i][0])); v.appendChild(h("span", null, "flushed")); v.className += " flushed"; }
+        else { v.appendChild(h("b", null, prog[x][0])); v.appendChild(h("span", null, prog[x][1])); }
+      });
+      noteP.textContent = cyc >= 0 ? C[cyc].n : "Press Step clock to run lw, add, sub, beq, then the branch target L: xor.";
+      step.disabled = cyc >= C.length - 1;
+    }
+    step.addEventListener("click", function () { if (cyc < C.length - 1) { cyc++; render(); } });
+    reset.addEventListener("click", function () { cyc = -1; render(); step.focus(); });
+    render();
+    note(el, "A teaching example of the hazards this core handles, not a trace from it. It assumes the branch resolves in Execute.");
+    return function () {};
+  };
+
+  /* ADC & PLL Models: how a SAR ADC finds its code, one bit per step. */
+  demos.sar = function (el) {
+    el.appendChild(h("p", { "class": "demo-title" }, "Try it: watch a 10-bit SAR ADC search for the code"));
+    var N = 10, vin = 0.637, bit, code, trials;
+    function reset() { bit = N - 1; code = 0; trials = []; }
+    function stepOnce() {
+      if (bit < 0) return;
+      var trial = code | (1 << bit), lvl = trial / (1 << N), keep = vin >= lvl;
+      trials.push({ bit: bit, lvl: lvl, keep: keep });
+      if (keep) code = trial;
+      bit--;
+    }
+    reset();
+    var st = stage(el, 480, 190, function (g) {
+      var L = 46, R = 466, T0 = 14, B0 = 170;
+      function Y(v) { return B0 - v * (B0 - T0); }
+      g.fillStyle = "#04140E"; g.fillRect(0, 0, 480, 190);
+      g.strokeStyle = "#0E3A29"; g.lineWidth = 1;
+      [0, 0.25, 0.5, 0.75, 1].forEach(function (v) { var yy = Math.round(Y(v)) + 0.5; g.beginPath(); g.moveTo(L, yy); g.lineTo(R, yy); g.stroke(); });
+      g.fillStyle = "#9DBFB0"; g.font = "600 10px ui-monospace, Menlo, monospace"; g.textAlign = "right"; g.textBaseline = "middle";
+      [[0, "0"], [0.5, "½ Vref"], [1, "Vref"]].forEach(function (q) { g.fillText(q[1], L - 6, Y(q[0])); });
+      g.strokeStyle = "#FFD166"; g.lineWidth = 2; g.setLineDash([6, 4]); g.beginPath(); g.moveTo(L, Y(vin)); g.lineTo(R, Y(vin)); g.stroke(); g.setLineDash([]);
+      g.fillStyle = "#FFD166"; g.textAlign = "right"; g.fillText("input", R - 4, Y(vin) - 9);
+      var w = (R - L) / N;
+      trials.forEach(function (t, i) {
+        var x = L + i * w;
+        g.fillStyle = t.keep ? "rgba(92,255,157,0.85)" : "rgba(217,76,76,0.85)";
+        g.fillRect(x + 4, Y(t.lvl), w - 8, B0 - Y(t.lvl));
+        g.fillStyle = "#04140E"; g.textAlign = "center"; g.font = "700 11px ui-monospace, Menlo, monospace";
+        g.fillText(t.keep ? "1" : "0", x + w / 2, B0 - 9);
+      });
+    });
+    st.canvas.setAttribute("aria-label", "Each step tries one more bit of the DAC level against the input voltage");
+    var readout = h("p", { "class": "demo-readout", "aria-live": "polite" });
+    var row = h("div", { "class": "demo-row" });
+    var bStep = h("button", { type: "button", "class": "demo-btn" }, "Next bit");
+    var bAll = h("button", { type: "button", "class": "demo-btn" }, "Finish");
+    var bReset = h("button", { type: "button", "class": "demo-btn" }, "Reset");
+    [bStep, bAll, bReset].forEach(function (b) { row.appendChild(b); });
+    var wrap = h("label", { "class": "demo-slider" });
+    var vt = h("span", null, "");
+    var s = h("input", { type: "range", min: "0", max: "1000", value: String(vin * 1000), "aria-label": "Input voltage as a fraction of Vref" });
+    function bin(c) { var t = c.toString(2); while (t.length < N) t = "0" + t; return t; }
+    function render() {
+      vt.textContent = "Input: " + vin.toFixed(3) + " × Vref";
+      var t = trials[trials.length - 1];
+      if (!t) readout.textContent = "Each step sets the next bit to 1, compares the DAC level with the input, and keeps the bit only if the input is still higher.";
+      else if (bit >= 0) readout.textContent = "Bit " + t.bit + ": tried " + t.lvl.toFixed(3) + " × Vref. The input is " + (t.keep ? "higher, so keep the 1." : "lower, so clear it.") + " Code so far " + bin(code) + ".";
+      else readout.textContent = "Done in 10 steps: code " + bin(code) + " = " + code + ", or " + (code / 1024).toFixed(3) + " × Vref.";
+      bStep.disabled = bAll.disabled = bit < 0;
+      st.redraw();
+    }
+    bStep.addEventListener("click", function () { stepOnce(); render(); });
+    bAll.addEventListener("click", function () { while (bit >= 0) stepOnce(); render(); });
+    bReset.addEventListener("click", function () { reset(); render(); });
+    s.addEventListener("input", function () { vin = s.value / 1000; reset(); render(); });
+    wrap.appendChild(vt); wrap.appendChild(s);
+    el.appendChild(wrap); el.appendChild(row); el.appendChild(readout);
+    render();
+    note(el, "A concept demo of the successive-approximation search. The project's real-number model was held to ±0.5 LSB of SPICE.");
+    return st.stop;
+  };
+
+  /* Switchgear Yard: selective coordination on a four-feeder lineup. */
+  demos.feeders = function (el) {
+    el.appendChild(h("p", { "class": "demo-title" }, "Try it: put a fault on one feeder"));
+    var fault = -1, t0 = 0, now = 0;
+    var status = h("p", { "class": "demo-readout", "aria-live": "polite" }, "All four feeders are energized.");
+    var st = stage(el, 480, 230, function (g, t) {
+      now = t;
+      var tripped = fault >= 0 && (reduced || t - t0 > 0.6);
+      var live = "#FFD166", dead = "#4B5563";
+      g.fillStyle = "#04140E"; g.fillRect(0, 0, 480, 230);
+      g.strokeStyle = live; g.lineWidth = 3;
+      g.beginPath(); g.arc(240, 26, 14, 0, 7); g.stroke();
+      g.fillStyle = "#9DBFB0"; g.font = "600 11px ui-monospace, Menlo, monospace"; g.textAlign = "left"; g.textBaseline = "middle";
+      g.fillText("13.8 kV source", 262, 26);
+      g.beginPath(); g.moveTo(240, 40); g.lineTo(240, 58); g.moveTo(240, 74); g.lineTo(240, 90); g.stroke();
+      g.fillStyle = "#D94C4C"; g.fillRect(232, 58, 16, 16);
+      g.fillStyle = "#9DBFB0"; g.fillText("main", 256, 66);
+      g.strokeStyle = live; g.lineWidth = 5; g.beginPath(); g.moveTo(60, 92); g.lineTo(420, 92); g.stroke();
+      g.fillStyle = "#9DBFB0"; g.textAlign = "right"; g.fillText("bus", 52, 92);
+      for (var i = 0; i < 4; i++) {
+        var x = 90 + i * 100, open = tripped && i === fault, c = open ? dead : live;
+        g.strokeStyle = live; g.lineWidth = 3; g.beginPath(); g.moveTo(x, 94); g.lineTo(x, 116); g.stroke();
+        if (open) { g.strokeStyle = "#2BB673"; g.lineWidth = 2; g.strokeRect(x - 8, 116, 16, 16); }
+        else { g.fillStyle = "#D94C4C"; g.fillRect(x - 8, 116, 16, 16); }
+        g.strokeStyle = c; g.lineWidth = 3; g.beginPath(); g.moveTo(x, 132); g.lineTo(x, 182); g.stroke();
+        g.fillStyle = c; g.beginPath(); g.moveTo(x - 7, 182); g.lineTo(x + 7, 182); g.lineTo(x, 194); g.closePath(); g.fill();
+        g.fillStyle = "#9DBFB0"; g.textAlign = "center"; g.fillText("Feeder " + (i + 1), x, 210);
+        if (i === fault) {
+          var blink = reduced || tripped || Math.floor(t * 8) % 2 === 0;
+          if (blink) {
+            g.fillStyle = "#FF5A5A";
+            g.beginPath(); g.moveTo(x + 14, 146); g.lineTo(x + 6, 160); g.lineTo(x + 12, 160); g.lineTo(x + 4, 174); g.lineTo(x + 20, 156); g.lineTo(x + 13, 156); g.lineTo(x + 20, 146); g.closePath(); g.fill();
+          }
+        }
+      }
+      g.textAlign = "left"; g.fillStyle = "#D94C4C"; g.fillRect(14, 16, 8, 8); g.fillStyle = "#9DBFB0"; g.fillText("closed", 27, 20);
+      g.strokeStyle = "#2BB673"; g.lineWidth = 1.5; g.strokeRect(14, 32, 8, 8); g.fillText("open", 27, 36);
+      if (fault >= 0 && tripped) status.textContent = "Feeder " + (fault + 1) + "'s breaker is nearest the fault, so it trips first. The main breaker's curve sits above it, so it waits, and the other three feeders stay on.";
+    });
+    st.canvas.setAttribute("aria-label", "Single-line diagram: a source, a main breaker, a bus and four feeders, each with its own breaker");
+    var row = h("div", { "class": "demo-row" });
+    [0, 1, 2, 3].forEach(function (i) {
+      var b = h("button", { type: "button", "class": "demo-btn" }, "Fault on " + (i + 1));
+      b.addEventListener("click", function () { fault = i; t0 = now; status.textContent = "Fault on Feeder " + (i + 1) + "."; st.redraw(); });
+      row.appendChild(b);
+    });
+    var rb = h("button", { type: "button", "class": "demo-btn" }, "Reset");
+    rb.addEventListener("click", function () { fault = -1; status.textContent = "All four feeders are energized."; st.redraw(); });
+    row.appendChild(rb);
+    el.appendChild(row); el.appendChild(status);
+    note(el, "Concept of selective coordination, not the project's relay settings. Red is closed and green is open, as on North American switchgear.");
+    return st.stop;
   };
 
   CW.demos = demos;

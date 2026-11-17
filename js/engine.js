@@ -134,16 +134,17 @@
   }
 
   var shot = { x: 0, y: 0 };   // the camera position this frame was drawn with
-  function label(text, wx, wy, color, dim) {
+  function label(text, wx, wy, color, dim, left) {
     var sx = (wx - shot.x) * S, sy = (wy - shot.y) * S;
     var fs = Math.round(11 * dpr);
     g.font = "700 " + fs + "px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
     var w = g.measureText(text).width + 12 * dpr, h = fs + 8 * dpr;
-    if (sx + w / 2 < 0 || sx - w / 2 > canvas.width || sy < -h || sy > canvas.height + h) return;
+    var x0 = left ? sx : sx - w / 2;
+    if (x0 + w < 0 || x0 > canvas.width || sy < -h || sy > canvas.height + h) return;
     g.fillStyle = dim ? "rgba(4,20,14,0.55)" : "rgba(4,20,14,0.85)";
-    g.fillRect(Math.round(sx - w / 2), Math.round(sy - h), Math.round(w), Math.round(h));
-    g.fillStyle = color; g.textAlign = "center"; g.textBaseline = "middle";
-    g.fillText(text, Math.round(sx), Math.round(sy - h / 2));
+    g.fillRect(Math.round(x0), Math.round(sy - h), Math.round(w), Math.round(h));
+    g.fillStyle = color; g.textAlign = left ? "left" : "center"; g.textBaseline = "middle";
+    g.fillText(text, Math.round(left ? x0 + 6 * dpr : sx), Math.round(sy - h / 2));
   }
 
   function draw() {
@@ -199,6 +200,11 @@
 
     /* labels and joystick in screen space, so text stays sharp */
     g.setTransform(1, 0, 0, 1, 0, 0);
+    /* district names stay pinned to the left edge of the view while you walk through a district */
+    (world.districts || []).forEach(function (d) {
+      var lx = Math.max(d.rect.x + 8, shot.x + 8 * dpr / S);
+      if (lx < d.rect.x + d.rect.w - 120) label(d.name.toUpperCase(), lx, d.rect.y + 15, PAL.gold, false, true);
+    });
     world.zones.forEach(function (z) {
       var done = z.project && explored[z.project.id];
       label((done ? "✓ " : "") + z.name, z.rect.x + z.rect.w / 2, z.rect.y - 3, z.project ? (done ? PAL.traceLit : "#FFFFFF") : "#8FB5A5", !z.project);
