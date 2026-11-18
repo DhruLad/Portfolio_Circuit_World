@@ -53,24 +53,36 @@
       f.appendChild(d);
       f._demo = function () { return CW.demos[p.demo](d, p); };
     }
+    if (p.headline) f.appendChild(el("p", "headline", p.headline));
     if (p.story) {
-      var steps = [["problem", "The problem"], ["action", "What I did"], ["why", "Why I did it that way"], ["result", "The result"]];
+      var st = p.story;
       var box = el(withDemo ? "div" : "details", "story");
       box.appendChild(el(withDemo ? "h3" : "summary", null, "How I approached it"));
       var dl = el("dl");
-      steps.forEach(function (s) {
-        var v = p.story[s[0]];
-        if (!v) return;
-        dl.appendChild(el("dt", null, s[1]));
-        var dd = el("dd");
-        String(v).split(/\n\s*\n/).forEach(function (para) { dd.appendChild(el("p", null, para)); });
-        dl.appendChild(dd);
-      });
+      function section(title, fill) { dl.appendChild(el("dt", null, title)); var dd = el("dd"); fill(dd); dl.appendChild(dd); }
+      function paras(dd, text) { String(text).split(/\n\s*\n/).forEach(function (t) { dd.appendChild(el("p", null, t)); }); }
+      if (st.problem) section("The problem", function (dd) { paras(dd, st.problem); });
+      if (st.steps && st.steps.length) {
+        section("What I did and why", function (dd) {
+          var ul = el("ul", "steps");
+          st.steps.forEach(function (x) {
+            var li = el("li");
+            li.appendChild(el("b", null, x.did));
+            if (x.why) { var w = el("span", "why"); w.appendChild(el("i", null, "Why: ")); w.appendChild(document.createTextNode(x.why)); li.appendChild(w); }
+            ul.appendChild(li);
+          });
+          dd.appendChild(ul);
+        });
+      }
+      if (st.action) section("What I did", function (dd) { paras(dd, st.action); });
+      if (st.why) section("Why I did it that way", function (dd) { paras(dd, st.why); });
+      if (st.result) section("The result", function (dd) { if (Array.isArray(st.result)) dd.appendChild(list(st.result)); else paras(dd, st.result); });
       box.appendChild(dl); f.appendChild(box);
     }
     if (p.built && p.built.length) { f.appendChild(el("h3", null, "What I built")); f.appendChild(list(p.built)); }
     if (p.results && p.results.length) { f.appendChild(el("h3", null, "Results")); f.appendChild(list(p.results, "chips results")); }
-    if (p.skills && p.skills.length) { f.appendChild(el("h3", null, "Skills")); f.appendChild(list(p.skills, "chips")); }
+    var chips = p.tools || p.skills;
+    if (chips && chips.length) { f.appendChild(el("h3", null, "Tools")); f.appendChild(list(chips, "chips")); }
     if (p.photos && p.photos.length) {
       f.appendChild(el("h3", null, "Photos"));
       var ph = el("div", "photos");
@@ -159,7 +171,7 @@
     $("game").focus();
   }
 
-  function meta(p) { return [p.date, p.org].filter(Boolean).join(" · "); }
+  function meta(p) { return [p.org, p.date, p.team].filter(Boolean).join(" · "); }
 
   function openProject(id, viaGame) {
     var order = world.order;
@@ -245,7 +257,7 @@
     row.insertBefore(button(started ? "Back to the game" : "Play the game", function () { if (started) hide(); else { hide(true); start(); } }), row.firstChild);
     body.appendChild(row);
     var areas = world.districts.filter(function (d) { return world.order.some(function (p) { return (p.category || "Other projects") === d.name; }); });
-    body.appendChild(el("p", "quick-lead", world.order.length + " projects in " + areas.length + " areas. Open \u201cHow I approached it\u201d on any card for the problem, what I did, why, and the result."));
+    body.appendChild(el("p", "quick-lead", world.order.length + " projects in " + areas.length + " areas. Open \u201cHow I approached it\u201d on any card for the problem, what I did and why, and the result."));
     areas.forEach(function (d) {
       body.appendChild(el("h2", null, d.name));
       world.order.forEach(function (p) {

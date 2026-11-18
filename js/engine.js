@@ -1,7 +1,7 @@
 /* engine.js: game loop, keyboard and touch input, camera, collision, drawing. */
 (function () {
   var CW = (window.CW = window.CW || {});
-  var SPEED = 96;             // world pixels per second = 6 tiles per second
+  var SPEED = 120;            // world pixels per second = 7.5 tiles per second
   var NEAR = 22;              // how close to a door pad counts as "at the door"
   var STORE = "circuit-world-explored";
 

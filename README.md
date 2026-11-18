@@ -1,6 +1,6 @@
 # Circuit World
 
-Dhru Lad's playable engineering portfolio. The map is a circuit board split into seven districts, each of the 22 projects is a component on it, and every project you open lights up its trace back to the MCU hub.
+Dhru Lad's playable engineering portfolio. The map is a circuit board with four districts around the MCU hub, each of the 15 projects is a building with its own mini-game, and every project you open lights up its trace back to the hub.
 
 No frameworks and no build step: plain HTML, CSS and JavaScript.
 
@@ -10,12 +10,13 @@ Double-click `index.html`. That's all.
 
 ## Add a project
 
-1. Open `content.js`, copy one project block inside `projects`, and change the text.
-2. Set `category` to an existing area to put it in that district, or to a new name to create a new district.
-3. Optional: put photos in `assets/projects/<id>/` and list the file names in `photos`.
-4. Save. The board, the project panels, the map and Quick View all pick it up.
+1. Open `content.js`, copy one project block inside `projects`, and change the text. The comment at the top of the file lists every field.
+2. Set `category` to an existing district's name, or to a new name to create a new district.
+3. Optional: pick a `sprite` (building art) and a `demo` (mini-game). The names are listed at the top of `content.js` and `js/demos.js`.
+4. Optional: put photos in `assets/projects/<id>/` and list the file names in `photos`.
+5. Save. The board, the project panels, the map and Quick View all pick it up.
 
-Each district holds four buildings per row and grows a new row when it fills. `sprite` and `demo` are optional; the names available are listed at the top of `content.js`.
+Each district holds four buildings per row and grows a new row when it fills.
 
 ## Before you share it
 

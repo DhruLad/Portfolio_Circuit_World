@@ -6,20 +6,17 @@
   Fields per project:
     id        unique, lowercase-with-dashes; names the photo folder and the deep link (#id)
     category  which district it sits in. A new category makes a new district on the board.
-    zone      short name shown on the board (keep it under about 18 characters)
-    title, date, org, summary
-    story     { problem, action, why, result }: the "How I approached it" walkthrough.
-              A blank line (\n\n) inside a field starts a new paragraph.
-    results   short result chips
-    skills    tool and skill chips
-
+    zone      short name shown on the board (keep it under about 16 characters)
+    title, org, date, team, summary, headline (one short result line)
+    tools     tool chips
+    story     problem: text (a blank line, \n\n, starts a new paragraph)
+              steps:   [{ did: "...", why: "..." }, ...]  ("What I did and why")
+              result:  ["...", "..."]
   Optional:
-    sprite  building art: "opamp", "ring", "oscilloscope", "cpu", "fpga", "adc", "brain",
-            "shield", "rocket", "garage", "motor", "pylon", "dome", "camera", "arm",
-            "humanoid", "gripper", "server", "monitor", "globe", "factory", "switchgear".
-            Anything else (or nothing) draws a plain chip.
-    demo    mini-demo from js/demos.js: "bode", "vco", "waveforms", "pipeline", "adder",
-            "sar", "sensors", "rocket", "robot", "motor", "models", "feeders".
+    sprite  building art: "gpu", "fpga", "globe", "gearmotor", "door", "garage", "motor",
+            "speaker", "planter", "oscilloscope", "zplane", "pylon", "camera", "gallery", "houses",
+            plus older ones such as "shield", "cpu", "rocket", "dome". Anything else draws a plain chip.
+    demo    mini-game from js/demos.js (see the list at the top of that file)
     photos  file names inside assets/projects/<id>/
     links   [{ label: "Code", url: "https://..." }]
 */
@@ -43,468 +40,504 @@ window.PORTFOLIO = {
       "Western Engineering Diversity Ambassador Award (2026)"
     ],
     skills: [
-      { group: "Analog & mixed-signal", items: "SKY130, ngspice, Xschem, Magic, Micro-Cap (SPICE), EAGLE, Altium Designer" },
-      { group: "Digital design & verification", items: "Verilog, SystemVerilog, UVM, SVA, Verilator, Intel Quartus Prime, Tcl" },
-      { group: "Embedded & hardware", items: "C/C++, Arduino, ESP32, I2C, UART, PCB Design & Layout, Power Electronics, Oscilloscope-Based Validation & Debug, SolidWorks" },
-      { group: "Machine learning & robotics", items: "PyTorch, TensorFlow/Keras, JAX, scikit-learn, Optuna, MuJoCo, MJX, CLIP" },
-      { group: "Software", items: "Python, React/TypeScript, Node.js, PostgreSQL, Docker, Git, VB.NET, MySQL, AutoCAD" }
+      { group: "Hardware description & scripting", items: "Verilog, TCL, Shell Scripting, Python, C/C++, MATLAB, SQL (MySQL), Assembly, Java" },
+      { group: "Digital design", items: "Digital Logic Design, Finite State Machines, RTL Simulation, FPGA Synthesis & Implementation, Linux/UNIX" },
+      { group: "Hardware & electronics", items: "Circuit Analysis, Schematic Capture, PCB Design & Layout, Signal Integrity, Power Electronics, Microcontrollers & Embedded Systems, Oscilloscope-Based Validation & Debug" },
+      { group: "EDA & simulation", items: "Intel Quartus Prime, Micro-Cap (SPICE), EAGLE, Altium, MATLAB, Simulink, AutoCAD, SolidWorks" },
+      { group: "Machine learning", items: "PyTorch, TensorFlow/Keras, scikit-learn, Optuna; TCN, GRU, RNN; OpenCV" },
+      { group: "Also", items: "CUDA C, Arduino, STM32, I2C, SPI, UART, Real-Time Systems, PLC Programming, Motor Control, Sensor Integration, Signal Processing, Git, Docker" }
     ],
     experience: [
       { role: "Avionics Lead Engineer", org: "Western Engineering Rocketry Team, London", dates: "Sept 2023 – Present",
-        line: "Designed and tested avionics systems for high-powered rockets, raising system reliability by 40%, validated over two full-scale launches." },
+        line: "Leads an 8-person avionics sub-team. Wrote 100 Hz Kalman-filter firmware that drives the air brakes: Flight 2 overshot the 3,048 m target by 1.8%, against 6.5% on Flight 1 (72% less error)." },
       { role: "Field Engineering Intern", org: "EllisDon & PCL, Parliament of Canada, Ottawa", dates: "Sept 2024 – Sept 2026",
-        line: "Analyzed mechanical and electrical drawings to resolve 150+ deficiencies a month and coordinated field activities for 20+ subcontractors." },
+        line: "Checked installed work against electrical drawings, logging about 150 deficiencies a month, and cut median close-out time from 14 to 9 days. Automated the weekly RFI report with Python, saving 78 hours a year." },
       { role: "Sustainability Commissioner", org: "Undergraduate Engineering Society, London", dates: "May 2026 – Present",
-        line: "Plans wellness and professional development initiatives for undergraduate engineering students." },
+        line: "Organized a PEO licensure (EIT to P.Eng.) info session for 40 students and plans professional-development and wellness programming." },
       { role: "Residence Don (Upper-Year)", org: "Western University Housing, London", dates: "Aug 2026 – Present",
-        line: "Leads a residence community of 85 upper-year students across 3 floors." },
+        line: "Leads a residence community of 85 upper-year students across 3 floors and 21 suites." },
       { role: "Residence Education Advisor", org: "Western University Housing, London", dates: "Aug 2025 – May 2026",
         line: "Designed and ran 10+ academic and leadership programs for a 350-resident building." },
       { role: "Donor Relations & Events Planning Coordinator", org: "Canadian Blood Services, London", dates: "Apr 2024 – Sept 2024",
-        line: "Planned 100+ community recruitment events and registered 5,000+ new donors." }
+        line: "Planned 100+ community recruitment events and registered 500+ new donors, improving registration rates by 70%." }
     ]
   },
 
   projects: [
-    /* ---------------- Analog and mixed-signal circuits ---------------- */
+    /* ---------------- Digital, GPU and software ---------------- */
     {
-      id: "cmos-opamp",
-      category: "Analog and mixed-signal circuits",
-      zone: "Op-Amp Fab",
-      title: "CMOS Two-Stage Op-Amp, Schematic to Layout",
-      date: "Nov 2026 – Present",
-      summary: "A Miller-compensated two-stage op-amp in the SKY130 open PDK, taken from specification through layout and post-layout simulation.",
+      id: "cuda-matmul",
+      category: "Digital, GPU and software",
+      zone: "GPU Foundry",
+      title: "Shape-Adaptive Batched Matrix Multiplication",
+      org: "Western University",
+      date: "Apr 2026",
+      summary: "I built a CUDA engine that multiplies 12,200 independent matrix pairs of mixed shapes in one kernel launch. It runs 53× faster than per-matrix launches on the small-matrix workload.",
+      headline: "53× faster on the small-matrix workload",
+      tools: ["CUDA C", "Nsight Systems", "CUDA events", "cuBLAS (benchmark)"],
       story: {
-        problem: "I wanted to take an analog block from specification all the way through layout in an open PDK. The block was an op-amp driving a 2 pF load. It had to stay stable across process, voltage and temperature, and still meet spec once layout parasitics were added.",
-        action: "I sized a Miller-compensated two-stage op-amp with the gm/ID method and biased it from a beta-multiplier current reference. I wrote Python scripts to run ngspice AC, transient, noise and stability sweeps over 15 PVT corners (−40 to 125 °C, ±10% VDD) and 200 Monte Carlo runs. Then I drew the layout in Magic with a common-centroid input pair, dummies and guard rings, passed DRC and LVS, and re-simulated with extracted parasitics.",
-        why: "I chose two stages because the first gives gain and the second adds gain with a wide output swing, which one stage struggles to do on a low supply. Two high-impedance nodes mean two poles close together, so I used a Miller capacitor to split them and make one dominant. I sized with gm/ID because square-law hand equations are unreliable in a short-channel process, and simulated gm/ID curves let me pick each transistor's speed-versus-efficiency trade-off directly.\n\nThe beta-multiplier makes the bias current depend on a resistor and a device ratio rather than on the supply. I scripted the sweeps because 15 corners times four analyses is too many to run by hand without missing one. I used a common-centroid input pair because offset comes from mismatch, and that layout cancels linear gradients across the die.",
-        result: "72 dB DC gain, 28 MHz unity-gain bandwidth, 62° phase margin and 21 nV/√Hz input noise, at 410 µW. Phase margin stayed above 55° and offset sigma below 2 mV across every corner and Monte Carlo run. Layout cost me 9% of the bandwidth, so I retuned the compensation in extracted simulation and brought phase margin back above 60°."
+        problem: "The task was to compute Cᵢ = Aᵢ·Bᵢ for thousands of independent matrix pairs across three workloads with very different shapes: thousands of tiny matrices, a smaller set of large ones up to 500×500 · 500×400, and a mix in between. The reference CUDA solution we were given handled only 1 of the 3 workloads.\n\nThe shapes pull in opposite directions. Tiny matrices finish so fast that launch overhead dominates. Large ones need careful tiling to reuse data. Matrices with a long inner dimension leave too few output tiles to keep the GPU busy. One kernel cannot be efficient at all three.",
+        steps: [
+          { did: "Diagnosed the reference solution before writing new code.", why: "I needed to know whether it failed because of a bug or a design limit. It was a design limit: it was built around one fixed tile setup, so shapes outside that assumption were not handled." },
+          { did: "Wrote 3 specialized kernels and a dispatcher that picks one by matrix shape. Register-blocked 64×64 tiling handles large matrices. Whole-matrix shared memory handles small ones. Split-K with warp-shuffle reduction handles long inner dimensions.", why: "Each shape hits a different hardware limit, so each gets the kernel built for that limit." },
+          { did: "Replaced 10,000 per-matrix launches with 1 batched launch.", why: "For small matrices the multiply itself takes microseconds, so launching a kernel per matrix spent most of the time on overhead." },
+          { did: "Used roofline analysis (1.8 to 77 FLOP/byte across workloads) to set each kernel's target.", why: "It shows whether a workload is limited by compute or memory. That told me to benchmark compute-bound kernels against cuBLAS and memory-bound ones against peak bandwidth." },
+          { did: "Checked every result against a double-precision CPU reference.", why: "Split-K changes the order floating-point sums are added, so I needed a trusted reference and a clear error tolerance." },
+          { did: "Profiled the full pipeline with CUDA events and Nsight Systems, not just the kernels.", why: "Kernel-only timings overstate real speedups if data transfer is the hidden cost." }
+        ],
+        result: [
+          "Handled all 3 workloads (12,200 matrices) where the reference handled 1, with a worst-case relative error under 5 × 10⁻⁶.",
+          "Cut GPU time on the small-matrix workload from 41.6 ms to 0.78 ms (53× faster).",
+          "Reached 52% of cuBLAS throughput on the compute-bound workload and 72% of peak memory bandwidth on the memory-bound ones.",
+          "Showed that CPU–GPU copies made up 70–95% of total run time after optimization, making the PCIe bus the remaining bottleneck. The next step would be overlapping transfers with compute using CUDA streams."
+        ]
       },
-      results: ["72 dB DC gain", "28 MHz unity-gain bandwidth", "62° phase margin", "21 nV/√Hz input noise", "410 µW", "PM > 55° over 15 PVT corners + 200 Monte Carlo runs"],
-      skills: ["SKY130", "ngspice", "Xschem", "Magic", "Python"],
-      sprite: "opamp",
-      demo: "bode",
-      photos: [],
-      links: []
-    },
-    {
-      id: "ring-vco",
-      category: "Analog and mixed-signal circuits",
-      zone: "VCO Ring",
-      title: "Current-Starved Ring-Oscillator VCO",
-      date: "Nov 2026 – Present",
-      summary: "A 5-stage current-starved ring oscillator in SKY130, with its tuning range, jitter and drift measured in simulation.",
-      story: {
-        problem: "A clock generator needs an oscillator whose frequency follows a control voltage over a wide range. I wanted to design one and then put numbers on its jitter and its drift, because those decide whether a VCO is usable.",
-        action: "I built a 5-stage current-starved ring oscillator: an inverter chain where current-mirror devices limit how much current each stage can draw. I sized the inverters and the starving devices to balance tuning range, power and output swing. Then I ran transient-noise simulations and wrote a Python script that finds the zero crossings, builds the period histogram and extracts RMS jitter.",
-        why: "I chose a ring oscillator because it needs no inductor, so it is compact and tunes over a wide range. The cost is more jitter than an LC oscillator, which is why I measured jitter rather than assuming it. Current starving works because stage delay is roughly capacitance times swing over current, so frequency follows the control current almost linearly.\n\nSizing was a three-way trade. Starving the stages harder widens the range at the low end, but the output swing collapses and the edges slow down. I extracted jitter from zero crossings because period jitter is, by definition, the variation in time between edges.",
-        result: "A 0.6 to 2.4 GHz tuning range with a near-linear gain of about 2 GHz/V at 1.8 V. Period jitter was 1.4 ps RMS, and frequency drifted ±7% across PVT corners."
-      },
-      results: ["0.6–2.4 GHz tuning range", "≈2 GHz/V near-linear gain", "1.4 ps RMS period jitter", "±7% drift across PVT"],
-      skills: ["SKY130", "ngspice", "Python/NumPy"],
-      sprite: "ring",
-      demo: "vco",
-      photos: [],
-      links: []
-    },
-    {
-      id: "function-generator",
-      category: "Analog and mixed-signal circuits",
-      zone: "Signal Lab",
-      title: "Function Generator, from Hand Analysis to a Working Board",
-      date: "Jan 2025",
-      summary: "A sine, square and triangle function generator for lab testing, taken from hand analysis and SPICE to a soldered, working PCB.",
-      story: {
-        problem: "In the lab we needed a signal source to test other circuits. I designed a function generator with sine, square and triangle outputs, and it had to be accurate enough to trust as a test input.",
-        action: "I designed the analog oscillator and wave-shaping stages by hand, then simulated them in Micro-Cap SPICE across several frequency ranges. I did the schematic capture and PCB layout in EAGLE, soldered the board, and brought it up with an oscilloscope and a multimeter.",
-        why: "I started with hand analysis because I wanted to know which components set the frequency and amplitude before I trusted a simulator. Then I ran SPICE, because hand analysis assumes ideal parts and simulation shows how real component behaviour moves the waveform. I did both before fabrication because a simulation rerun takes seconds and a board respin takes days.\n\nAt bring-up I checked every output on the scope. Soldering and layout faults only show up on the real board, so that is where the design has to be proven.",
-        result: "All three waveforms came out within ±5% of the design values, up to 10 kHz, as measured on the oscilloscope. The project went from concept to a fully working prototype."
-      },
-      results: ["Within ±5% of design values", "Up to 10 kHz", "Concept to working prototype"],
-      skills: ["Micro-Cap SPICE", "EAGLE", "PCB layout", "Soldering", "Oscilloscope"],
-      sprite: "oscilloscope",
-      demo: "waveforms",
-      photos: [],
-      links: []
-    },
-
-    /* ---------------- Digital design and verification ---------------- */
-    {
-      id: "riscv-core",
-      category: "Digital design and verification",
-      zone: "RISC-V Core",
-      title: "Pipelined RISC-V (RV32I) CPU Core",
-      date: "Oct 2026 – Present",
-      summary: "A 5-stage RV32I pipeline in SystemVerilog with hazard handling, verified by a self-checking random testbench over 2,000+ seeds.",
-      story: {
-        problem: "I wanted to build a processor that is both fast and demonstrably correct, not one that only runs a demo program. A pipeline makes both hard. Instructions overlap, so data and control hazards create bugs that appear only in specific instruction sequences.",
-        action: "I designed a 5-stage RV32I pipeline in SystemVerilog with data forwarding, load-use hazard detection and branch flush. I wrote a verification test plan, then a self-checking testbench with constrained-random programs, SVA assertions and a Python reference model. A Python regression flow on Linux runs 2,000+ random seeds through Verilator, triages the failures and dumps waveforms. For speed, I re-pipelined the critical paths that static timing analysis reported.",
-        why: "Forwarding handles most data hazards by routing a result straight back to Execute instead of waiting for write-back. The one case it cannot fix is a load followed immediately by a use, because the data has not left memory yet, so that case gets a one-cycle stall. A branch is decided after later instructions were already fetched, so those get flushed.\n\nI could not hand-write every instruction sequence, so I generated random programs and compared the RTL against a reference model, which makes any random program self-checking. Assertions catch a bug in the cycle it happens rather than thousands of cycles later. I used Verilator because it is fast enough to make thousands of seeds practical.",
-        result: "Timing closed at 75 MHz on an Intel FPGA with a CPI of 1.19 on RV32I benchmarks. I reached 100% RV32I instruction coverage and 96% functional coverage. The regression found 12 RTL bugs, and I fixed all of them before FPGA deployment."
-      },
-      results: ["75 MHz timing closure", "CPI 1.19", "100% RV32I instruction coverage", "96% functional coverage", "12 RTL bugs found and fixed"],
-      skills: ["SystemVerilog", "Verilator", "SVA", "Python", "Tcl", "Intel FPGA"],
-      sprite: "cpu",
-      demo: "pipeline",
+      sprite: "gpu",
+      demo: "dispatch",
       photos: [],
       links: []
     },
     {
       id: "fpga-logic",
-      category: "Digital design and verification",
+      category: "Digital, GPU and software",
       zone: "Logic Fortress",
-      title: "Digital Control System in Verilog on an FPGA",
+      title: "Digital Logic Design in Verilog (FPGA)",
+      org: "Western University",
       date: "Dec 2025",
-      summary: "A modular control system of state machines, counters, registers and I/O, simulated first and then proven on an FPGA board.",
+      summary: "I built a 12-module FPGA control system that met its 50 MHz clock with a 140 MHz Fmax at under 2% logic utilization. On the board it matched simulation in all 6 operating states.",
+      headline: "140 MHz Fmax against a 50 MHz clock; 100% of 250+ tests pass",
+      tools: ["Verilog", "TCL", "Intel Quartus Prime Lite", "ModelSim", "FPGA development board"],
       story: {
-        problem: "The task was a modular digital control system on an FPGA board: state machines, counters, registers and hardware I/O working together. The risk with FPGA work is debugging on the board, where I can see only the pins.",
-        action: "I wrote the building blocks in Verilog: adders, multiplexers, counters, registers and finite-state machines. I simulated them, read the waveforms, and fixed timing and logic errors before synthesis. I wrote Tcl scripts for the pin assignments and the Quartus compile flow, then programmed the board and tested the I/O in every operating state.",
-        why: "I kept the design modular so each block could be verified alone. When the full system misbehaved, I knew the blocks were good and looked at how they were connected. I simulated before synthesis because a waveform shows every internal signal on every clock edge, and the board shows only outputs.\n\nI scripted the build in Tcl because pin assignments entered by hand in the GUI are slow and easy to get wrong, and a script runs the same way every time. I still tested on hardware in every state, because some timing and logic problems appeared only on real I/O. I fixed those by going back to the RTL.",
-        result: "The design ran correctly on the FPGA across all operating states. The Tcl scripts reduced a multi-step manual build to a single command."
+        problem: "The project called for a multi-state controller on an FPGA board, driven by slide switches and push-buttons and shown on LEDs and 7-segment displays. It had to meet the board's 50 MHz clock and behave the same on hardware as in simulation.\n\nThree things made that hard. Bugs found on the board are slow to trace, because you can only see LEDs. Each compile-and-program cycle in the Quartus GUI took several manual steps, including 34 pin assignments that are easy to mistype. And real switches and buttons do not behave like the clean signals in a testbench.",
+        steps: [
+          { did: "Split the design into 12 RTL modules around a 6-state finite state machine, with reusable counters, registers, adders and multiplexers.", why: "Keeping control logic (the FSM) separate from the datapath let me test each piece on its own and find a bug's source quickly. Short logic paths between registers also gave timing headroom." },
+          { did: "Wrote self-checking Verilog testbenches with 250+ test vectors covering every FSM state and transition, and debugged with ModelSim waveforms.", why: "A bug costs minutes to find in simulation and hours on hardware. Self-checking tests also flagged any regression as soon as I changed a module." },
+          { did: "Wrote TCL scripts that automated pin mapping and the full Quartus compile flow.", why: "I expected 40+ compile-and-program cycles. Scripting them removed repetitive clicking, and a scripted pin map cannot be mistyped, so wiring errors would never be mistaken for logic bugs." },
+          { did: "Tested every operating state on the board, then added debounce logic and 2-flop synchronizers.", why: "Mechanical switches bounce, and buttons change state without regard to the clock. Without conditioning, one press can register several times, or an input can catch a flip-flop mid-transition (metastability)." }
+        ],
+        result: [
+          "Reached a 140 MHz Fmax against the 50 MHz requirement (2.8× headroom) at under 2% logic utilization.",
+          "Fixed 9 logic and timing bugs before synthesis and reached a 100% pass rate on 250+ test vectors.",
+          "Turned 40+ compile-and-program cycles into one command each and eliminated manual entry of 34 pin assignments.",
+          "Found 0 differences between hardware and simulation across all 6 states, after fixing the 2 hardware-only faults (switch bounce and unsynchronized inputs)."
+        ]
       },
-      results: ["Correct across all operating states", "Build reduced to a single command"],
-      skills: ["Verilog", "Intel Quartus Prime", "Tcl", "Finite state machines", "RTL simulation"],
       sprite: "fpga",
-      demo: "adder",
-      photos: [],
-      links: []
-    },
-    {
-      id: "adc-pll-uvm",
-      category: "Digital design and verification",
-      zone: "ADC & PLL Models",
-      title: "Behavioral Models and a UVM Testbench for a SAR ADC and a Charge-Pump PLL",
-      date: "Sep – Oct 2026",
-      summary: "Fast real-number models of a 10-bit SAR ADC and a charge-pump PLL, held to SPICE accuracy and verified inside a UVM testbench.",
-      story: {
-        problem: "Mixed-signal chips contain analog blocks such as ADCs and PLLs that are far too slow to simulate in SPICE next to the digital logic. Without fast models of those blocks, the digital side cannot be verified before silicon.",
-        action: "I wrote event-driven real-number models in SystemVerilog for a 10-bit SAR ADC and a charge-pump PLL, and checked them against SPICE references. Around them I built a UVM testbench with agents, a driver, a monitor and a scoreboard, using constrained-random stimulus, assertions and covergroups. I wrote a verification plan that traces 30+ spec features to tests, coverage points and checkers, tracked the regressions, and logged bugs to closure.",
-        why: "A real-number model keeps the analog value as a real number but updates only on events, so it runs at digital-simulation speed. Speed is worthless if the model is wrong, so I set a tolerance against SPICE and held the models to it. I used UVM because its structure is reusable: the same driver and monitor serve every test, and only the sequences change.\n\nThe blocks have 12 operating modes, and I would not think of every combination by hand, so I randomized the stimulus and let covergroups tell me what was actually reached. Full coverage only shows that I exercised the design. To show the checkers would notice a failure, I injected bugs on purpose.",
-        result: "The models matched SPICE within ±0.5 LSB for the ADC and ±1% of lock frequency for the PLL. The testbench reached 100% functional coverage across 12 operating modes and caught 6 injected bugs."
-      },
-      results: ["ADC within ±0.5 LSB of SPICE", "PLL within ±1% of lock frequency", "100% functional coverage, 12 modes", "Caught 6 injected bugs"],
-      skills: ["SystemVerilog", "UVM", "SVA", "Real-number modeling"],
-      sprite: "adc",
-      demo: "sar",
-      photos: [],
-      links: []
-    },
-    {
-      id: "ai-testbench",
-      category: "Digital design and verification",
-      zone: "Coverage Engine",
-      title: "AI-Driven Testbench Generation for Mixed-Signal Calibration",
-      date: "Oct 2026 – Present",
-      summary: "A Python framework that generates UVM tests from the spec and steers stimulus toward uncovered bins, lifting coverage from 68% to 97%.",
-      story: {
-        problem: "A multi-mode RF calibration controller handles DC offset, I/Q imbalance and VCO band select, and those flows depend on each other and on the register configuration. Functional and scenario coverage stood at 68%. The gap was in combinations of modes, which is where corner-case bugs hide.",
-        action: "I built a Python framework that generates UVM sequences and constrained-random scenarios automatically. A RAG pipeline over the spec documents and register maps helped me map 40+ calibration flows, operating modes and configuration dependencies into cross-coverage bins and SVA assertions. I trained a scikit-learn model on 5K+ simulation logs to prioritize stimulus for uncovered bins, and I clustered failures with pandas.",
-        why: "The dependencies live in the spec, and reading it by hand is where they get missed. Retrieval pulls the relevant passages for each flow, so each coverage bin traces back to a spec statement. I used cross-coverage because these bugs are not in one mode; they are in the interaction of two.\n\nPure random stimulus spends most of its runs hitting bins that are already covered. A model trained on past logs spends the simulation budget on what is still missing. I clustered failures because one root cause produces many failing seeds, and I only want to debug it once.",
-        result: "Coverage rose from 68% to 97%. Regression cycles got 35% shorter, three corner-case bugs were exposed, and triage time was cut in half."
-      },
-      results: ["Coverage 68% → 97%", "Regression cycles 35% shorter", "3 corner-case bugs exposed", "Triage time halved"],
-      skills: ["Python", "SystemVerilog", "UVM", "RAG", "scikit-learn", "pandas"],
-      sprite: "brain",
-      photos: [],
-      links: []
-    },
-
-    /* ---------------- Boards, embedded systems and hardware ---------------- */
-    {
-      id: "pcb-shield",
-      category: "Boards, embedded systems and hardware",
-      zone: "Shield Workshop",
-      title: "Mixed-Signal PCB: Arduino Sensor and Actuator Shield",
-      date: "Jan 2026",
-      summary: "A single-layer shield that connects an Arduino UNO to 11 peripherals, with an isolated 12 V solenoid rail and data streamed to an ESP32 web server.",
-      story: {
-        problem: "I had to connect an Arduino UNO to 11 peripherals on a single-layer board. Two things made that hard. With one copper layer, traces cannot cross. And the solenoids run from a 12 V, 2 A rail that could disturb or damage the logic.",
-        action: "I designed a custom shield in Altium Designer with 45° trace routing, thermal pads and external ground-plane bridges. I isolated the 12 V solenoid rail with optocoupled relays and added resistive voltage dividers to stop sensors overheating. After soldering the through-hole parts, I found power shorts and open traces by cross-referencing the schematic and continuity testing. Then I wrote C++ firmware to read five sensor types and send the data over UART to an ESP32 web server.",
-        why: "A solenoid is an inductive load on a higher-voltage rail. With an optocoupler, the only link between that rail and the microcontroller is light, so switching noise or a fault has no electrical path into the logic. On a single layer some nets have to cross, so I planned external bridges as deliberate jumpers instead of forcing long detours. Thermal pads keep a joint from losing its heat into a large copper area, which makes hand soldering reliable.\n\nWhen the board did not work, I tested continuity against the schematic rather than guessing. That splits the problem cleanly: either the copper matches the schematic or it does not. I sent the data to an ESP32 because the UNO has no network connection, so the UNO reads sensors and the ESP32 serves the web page.",
-        result: "All 11 peripherals worked on a single-layer board, the solenoid rail stayed isolated from the logic, and readings from five sensor types streamed to the ESP32 web server."
-      },
-      results: ["11 peripherals on one single-layer board", "12 V solenoid rail isolated", "5 sensor types streaming to ESP32"],
-      skills: ["Altium Designer", "C++", "Arduino", "ESP32", "UART", "Soldering"],
-      sprite: "shield",
-      demo: "sensors",
-      photos: [],
-      links: []
-    },
-    {
-      id: "flight-computer",
-      category: "Boards, embedded systems and hardware",
-      zone: "Launch Pad",
-      title: "Flight Computer Obsolescence Redesign and Automated Test Fixture",
-      date: "Oct 2026",
-      org: "Western Engineering Rocketry Team",
-      summary: "Replaced an end-of-life barometric sensor on the rocket's flight computer and proved the swap with an automated side-by-side test fixture.",
-      story: {
-        problem: "Our flight computer used a BMP180 barometric sensor, and the part went end-of-life. We could no longer rely on supply. A flight computer depends on its barometer for altitude, so I could not drop in a replacement without proving it behaved the same.",
-        action: "I qualified the BMP390 as the replacement by comparing specs, footprint and I2C registers. I updated the schematic, PCB and BOM through a change record. Then I built a Python and Arduino test fixture that logs both sensors side by side and flags out-of-tolerance readings, and I ran it for 30 bench cycles.",
-        why: "A replacement part can fail in three ways: its performance differs, it does not fit the board, or the firmware talks to it wrongly. Specs, footprint and register map cover those three. I used a change record because one substitution touched the schematic, the layout and the BOM. If any one of them is missed, the next board gets built wrong.\n\nI automated the comparison instead of spot-checking. Form-fit-function equivalence is a claim about many readings, and a script applies the same tolerance to every one of them.",
-        result: "The BMP390 matched the BMP180 within ±0.5 hPa over 30 bench cycles, and part supply for the flight computer was restored."
-      },
-      results: ["BMP390 within ±0.5 hPa of BMP180", "30 bench cycles", "Part supply restored"],
-      skills: ["Component qualification", "I2C", "Change control", "Python", "Arduino"],
-      sprite: "rocket",
-      demo: "rocket",
-      photos: [],
-      links: []
-    },
-    {
-      id: "autonomous-robot",
-      category: "Boards, embedded systems and hardware",
-      zone: "Robot Garage",
-      title: "Autonomous Robot: Navigation, Retrieval and Sorting",
-      date: "Jan 2026",
-      summary: "A robot that drives a course on its own, avoids obstacles, picks up objects, sorts the valuable ones and homes back.",
-      story: {
-        problem: "The robot had to drive itself around a course, avoid obstacles, pick up objects, decide which ones were valuable, sort them and find its way home, all with nobody touching it.",
-        action: "I built it on an Arduino in C++. Ultrasonic and IR sensors feed real-time navigation, obstacle avoidance and closed-loop lane-keeping. Servo-driven manipulators handle retrieval and sorting, DC motors drive the wheels, and I modelled the mechanical assemblies in SolidWorks. I also designed the power-distribution and motor-control subsystem, selecting the voltage regulation, driver circuitry and protection components.",
-        why: "I used two kinds of sensor because each covers what the other is poor at: ultrasonic gives range to an obstacle, and IR handles close-range detection. I closed the loop on lane-keeping because open-loop driving drifts. Wheels slip and motors are never perfectly matched, so the robot has to keep correcting from what it senses.\n\nI designed the power stage myself because motors and servos draw large, changing currents. If that pulls the supply down, the Arduino resets or the sensors misread, and the fault looks like a software bug. Regulation and protection keep the logic steady while the load changes.",
-        result: "The robot sorted valuable from non-valuable objects with 100% accuracy, and it traversed the course, avoided obstacles and homed autonomously."
-      },
-      results: ["100% sorting accuracy", "Autonomous traversal, avoidance and homing"],
-      skills: ["Arduino", "C++", "Python", "SolidWorks", "Motor control", "Sensor integration"],
-      sprite: "garage",
-      demo: "robot",
-      photos: [],
-      links: []
-    },
-    {
-      id: "bldc-motor",
-      category: "Boards, embedded systems and hardware",
-      zone: "Motor Works",
-      title: "Custom BLDC Motor: Design, Build and Test",
-      date: "Dec 2025",
-      summary: "A brushless DC motor designed from first principles inside a 15 V, 5 A, 75 W envelope, then printed, built and tested.",
-      story: {
-        problem: "I had to design and build a brushless DC motor from scratch inside a fixed electrical envelope: 15 V, 5 A and 75 W. The difficulty is that speed and torque pull in opposite directions from the same winding.",
-        action: "I calculated the motor constants Kv and Kt from first principles and chose the number of winding turns to fit the voltage and current limits. I built the magnetic circuit around N52 magnets with a wye winding configuration. I designed the mechanical parts in SolidWorks, 3D printed them, assembled the motor and tested it.",
-        why: "Kv and Kt are two views of the same quantity. More turns give more torque per amp but less speed per volt. With voltage capped at 15 V and current at 5 A, the turns count is the main lever, so I calculated it instead of winding by trial and error.\n\nI chose N52 magnets because a stronger magnet gives more flux, and more flux gives more torque for the same current. I connected the phases in wye so no current can circulate around the winding loop, as it can in delta. I 3D printed the mechanical parts so I could change a part and test again quickly.",
-        result: "The motor reached a peak speed of 3,000 RPM and 0.12 N·m of torque at 63% efficiency, within the 15 V, 5 A, 75 W limits. Cogging torque dropped by 40%, which made startup smoother."
-      },
-      results: ["3,000 RPM peak", "0.12 N·m torque", "63% efficiency", "Cogging torque down 40%"],
-      skills: ["Motor design", "Electromagnetics", "SolidWorks", "3D printing"],
-      sprite: "motor",
-      demo: "motor",
-      photos: [],
-      links: []
-    },
-
-    /* ---------------- Machine learning and forecasting ---------------- */
-    {
-      id: "load-forecast",
-      category: "Machine learning and forecasting",
-      zone: "Grid Forecast",
-      title: "Day-Ahead Electricity Load Forecasting",
-      date: "Nov 2026",
-      summary: "Hourly 24-hour-ahead load forecasts for a distribution zone, with six neural architectures held to one leak-free protocol and a 139 kB deployable model.",
-      story: {
-        problem: "I had to forecast the next 24 hours of electricity demand for a distribution zone in Tetouan, Morocco, every hour, from 52K ten-minute power readings. The trap in time-series work is leakage. If the model sees the future during training, the results look excellent and mean nothing.",
-        action: "I built the pipeline around a time-ordered split, fitted the preprocessing on training data only, and used rolling-origin cross-validation. I compared six neural architectures (MLP, CNN, SimpleRNN, LSTM, GRU, TCN) against linear and seasonal-naive baselines under one shared training protocol. I added a residual anchor so each network learns corrections to yesterday's load profile. I owned evaluation and test reporting, exported the final model to TensorFlow Lite, and built checkpointing plus a smoke test that rebuilds forecasts from raw data.",
-        why: "Load repeats daily, so \"same as yesterday\" is already a decent forecast. A network has to beat that baseline to justify its cost. I held every model to one protocol so that differences come from the architecture, not from one model getting more tuning.\n\nThe anchor exists because a small correction is easier to learn than a whole curve; the network starts from a good answer. I built the reproducibility tooling because a comparison of eight models is only credible if anyone can rerun it and get the same numbers.",
-        result: "On the held-out test set, the tuned models had 16–23% lower RMSE than the seasonal-naive baseline. The anchor lowered validation error by 9–28% across the sequence models. I traced a consistent winter over-forecast to two causes: the training data covered only January to August, and the inputs did not mark holidays.\n\nThe TensorFlow Lite model is 139 kB and within 2.3 kW of the full model. Retraining all 90 networks from scratch reproduced every result exactly."
-      },
-      results: ["16–23% lower RMSE than seasonal-naive", "Residual anchor: 9–28% lower validation error", "139 kB TFLite model, within 2.3 kW", "All 90 networks reproduced exactly"],
-      skills: ["Python", "TensorFlow/Keras", "scikit-learn", "TensorFlow Lite", "Git"],
-      sprite: "pylon",
-      photos: [],
-      links: []
-    },
-    {
-      id: "housing-forecast",
-      category: "Machine learning and forecasting",
-      zone: "Data Observatory",
-      title: "Predictive Analysis of U.S. Housing Markets",
-      date: "Sep 2025",
-      summary: "RNN, GRU and TCN models compared against SARIMA baselines to forecast monthly U.S. construction permits on sparse, noisy data.",
-      story: {
-        problem: "I wanted to forecast monthly U.S. construction permits. The data is sparse and high-variance: few points per series and large swings. That is the regime where deep models often lose to classical statistics.",
-        action: "I built a supervised deep learning framework in Python that compares RNN, GRU and Temporal Convolutional Network architectures against SARIMA baselines. I ran Bayesian hyperparameter optimization with Keras Tuner and Optuna on T4 GPUs.",
-        why: "SARIMA is the standard model for seasonal monthly series, and with little data it is hard to beat, so it was the honest baseline. I tried three architectures because they handle history differently. An RNN and a GRU carry a hidden state forward one step at a time, while a TCN looks at a fixed window through dilated convolutions.\n\nI used Bayesian search instead of a grid because small, noisy datasets make results very sensitive to hyperparameters, and every trial costs GPU time. Bayesian optimization uses the trials already run to choose the next one.",
-        result: "The tuned TCN excelled on the sparse, high-variance data and outperformed the SARIMA baselines."
-      },
-      results: ["Tuned TCN outperformed SARIMA baselines"],
-      skills: ["Python", "Keras", "Keras Tuner", "Optuna", "Time-series forecasting"],
-      sprite: "dome",
-      demo: "models",
-      photos: [],
-      links: []
-    },
-    {
-      id: "video-qa",
-      category: "Machine learning and forecasting",
-      zone: "Video Lab",
-      title: "Video State-Tracking and Question Answering: Recurrent versus Attention",
-      date: "Oct 2026 – Present",
-      summary: "A controlled comparison of recurrent and attention-based temporal models on synthetic multi-object videos, including clips four times longer than training.",
-      story: {
-        problem: "When a model watches a video and has to keep track of objects, does it matter whether its temporal part is recurrent or attention-based? I wanted to know what happens on videos longer than anything seen in training, and when training data is scarce.",
-        action: "I generated 20K synthetic multi-object videos. Every model shares the same CNN frame encoder, and only the temporal head changes: ConvGRU, LSTM or Transformer. For question answering, I fused a GRU text encoder with the visual features through cross-attention. All models trained under one protocol: AdamW, cosine learning rate, mixed precision and five seeds.",
-        why: "I used synthetic data because I control the ground truth and the clip length, so I can test on clips exactly four times longer than training. I shared the encoder and the protocol so the only variable is the inductive bias of the temporal head. I ran five seeds so that a difference is not one lucky run.\n\nMy hypothesis was that a recurrent model applies the same update rule at every frame, so it should extend to longer videos. A Transformer attends over positions it saw in training and has no built-in reason to extrapolate beyond them.",
-        result: "On clips four times longer than training, the gated recurrent model reached 91% against 58% for the Transformer, a 33-point gap. It matched the Transformer's full-data accuracy using only 40% of the training clips. The question-answering model reached 84% on counting and spatial-relation questions."
-      },
-      results: ["91% vs 58% on 4× longer clips", "Same accuracy with 40% of the data", "84% on counting and spatial questions"],
-      skills: ["PyTorch", "ConvGRU", "LSTM", "Transformers", "Cross-attention"],
-      sprite: "camera",
-      photos: [],
-      links: []
-    },
-
-    /* ---------------- Robot learning ---------------- */
-    {
-      id: "arm-rl",
-      category: "Robot learning",
-      zone: "Arm Gym",
-      title: "Robotic Manipulation with Reinforcement Learning and Sim2Real Transfer",
-      date: "Jul – Aug 2026",
-      summary: "A PPO pick-and-place policy for a simulated 7-DoF arm, made robust to unseen physics with domain randomization and demonstration pretraining.",
-      story: {
-        problem: "I wanted to teach a simulated 7-DoF robot arm to pick and place, and to make the policy survive conditions it was not trained on. A policy that only works in its own simulator will not transfer to a real robot.",
-        action: "I trained a PPO actor-critic policy with dense reward shaping and observation normalization. I applied domain randomization over object dynamics, friction and actuator latency. I also pretrained the policy with behaviour cloning on 200 demonstrations.",
-        why: "PPO limits how far each update can move the policy, which keeps training stable for continuous control. I shaped a dense reward because with a sparse success signal the arm almost never completes a pick-and-place by chance, so it has nothing to learn from. I normalized observations because joint angles and positions sit on different scales.\n\nI randomized the physics because real mass and friction will never match the simulator. If the policy trains across a range, the real values are just one more sample. I pretrained on demonstrations so that PPO starts near sensible behaviour and spends its steps refining instead of exploring from scratch.",
-        result: "The policy reached an 87% pick-and-place success rate over 500 evaluation episodes. Under unseen ±25% mass and friction shifts, domain randomization raised success from 52% to 81%. Behaviour-cloning pretraining cut the environment steps to convergence by 40%."
-      },
-      results: ["87% success over 500 episodes", "52% → 81% under ±25% physics shifts", "40% fewer steps to converge"],
-      skills: ["PyTorch", "MuJoCo", "PPO", "Domain randomization", "Behaviour cloning"],
-      sprite: "arm",
-      photos: [],
-      links: []
-    },
-    {
-      id: "humanoid-rl",
-      category: "Robot learning",
-      zone: "Humanoid Park",
-      title: "Humanoid Locomotion and Dexterous Manipulation with Deep RL",
-      date: "Nov 2026 – Present",
-      summary: "Whole-body PPO control for a simulated Unitree G1 humanoid and a 16-DoF LEAP hand, trained on thousands of GPU-parallel environments.",
-      story: {
-        problem: "I wanted to train whole-body control for a humanoid and for a dexterous hand with reinforcement learning. Both are high-dimensional and full of contact, so they need an enormous number of simulation steps.",
-        action: "I trained an end-to-end PPO policy for full-body locomotion on a simulated Unitree G1 that tracks joystick velocity commands, running thousands of parallel MJX environments on a single GPU. I added domain randomization over friction, link mass, actuator gains and sensor noise, and shaped rewards for foot clearance, gait regularity and torque cost. I then adapted the same pipeline to a 16-DoF LEAP hand, using proprioceptive and object-pose inputs. I validated both policies sim-to-sim in CPU MuJoCo.",
-        why: "PPO is on-policy and hungry for samples, so throughput decides whether it is practical. MJX runs the physics on the GPU, which lets thousands of environments step in parallel next to the policy. Tracking velocity alone produces gaits that move but shuffle or waste torque, so each reward term penalizes one specific bad habit.\n\nI randomized the physics and pushed the robot because a policy trained on one set of parameters is brittle. I checked both policies in CPU MuJoCo because a policy can exploit quirks of one simulator. If it still works on a different implementation of the physics, it is less likely to be overfit.",
-        result: "The humanoid tracks commands with under 0.15 m/s mean error and recovers from 95% of randomized lateral pushes. The hand achieves 12 consecutive in-hand cube reorientations per episode."
-      },
-      results: ["< 0.15 m/s mean tracking error", "Recovers from 95% of pushes", "12 consecutive cube reorientations"],
-      skills: ["Python", "JAX", "MuJoCo MJX", "PPO", "Reward shaping"],
-      sprite: "humanoid",
-      photos: [],
-      links: []
-    },
-    {
-      id: "grasp-imitation",
-      category: "Robot learning",
-      zone: "Grasp Studio",
-      title: "Language-Conditioned Visuomotor Imitation Learning for Grasping",
-      date: "Nov 2026 – Present",
-      summary: "One vision policy that performs three grasping tasks from a language instruction, learned from 600 human demonstrations.",
-      story: {
-        problem: "I wanted one policy that performs different grasping tasks depending on a language instruction, and that learns from human demonstrations instead of a hand-written reward.",
-        action: "I built a multi-task vision policy with a ResNet-18 image encoder, conditioned on frozen CLIP text embeddings through FiLM. I trained it on 600 human teleoperation demonstrations across three tasks: lift, pick-and-place and nut-on-peg. I then added wrist-camera views, random-crop augmentation, and action chunking with temporal ensembling.",
-        why: "For manipulation, showing the task is easier than specifying a reward for it, so I used imitation. Six hundred demonstrations cannot teach a model language, but CLIP's text encoder already has it. Freezing it stops a small dataset from damaging what it knows. FiLM lets the instruction scale and shift the visual features, so the same network looks for different things depending on the task.\n\nI added a wrist camera because the precise part of an insertion is hidden from an external view by the gripper. Random crops stop the policy memorizing pixel positions. Predicting one action at a time lets small errors compound, so I predict short chunks and average the overlapping predictions for smoother motion.",
-        result: "One policy reached 85% average success over 150 rollouts on the three language-specified tasks. The wrist camera, augmentation and action chunking together improved precision nut-insertion success by 18 points."
-      },
-      results: ["85% average success over 150 rollouts", "+18 points on nut insertion", "600 demonstrations, 3 tasks"],
-      skills: ["PyTorch", "CLIP", "robomimic", "FiLM", "Imitation learning"],
-      sprite: "gripper",
-      photos: [],
-      links: []
-    },
-
-    /* ---------------- Software and AI tools ---------------- */
-    {
-      id: "rtl-assistant",
-      category: "Software and AI tools",
-      zone: "RTL Assistant",
-      title: "Agentic RTL Design-Flow Assistant",
-      date: "Nov 2026 – Present",
-      summary: "A full-stack assistant whose agents run real lint, simulation and synthesis tools, so every proposed RTL fix is checked before a person sees it.",
-      story: {
-        problem: "RTL debugging is a loop: lint, simulate, read the error, fix, repeat. Most of that loop is mechanical. I wanted to see how much of it an AI assistant could take over without my having to trust an LLM's output blindly.",
-        action: "I built a full-stack tool with a responsive React/TypeScript UI, a Node.js/Express REST API and a PostgreSQL database. A planner agent coordinates four tool-calling sub-agents that run Verilator lint, Icarus Verilog simulation, Yosys synthesis and Quartus Tcl scripts on Linux. I added RAG over 200+ pages of datasheets and design guides, with the embeddings stored in PostgreSQL through pgvector. Everything runs in Docker, and a GitHub Actions pipeline runs 60+ Jest and pytest tests.",
-        why: "An LLM cannot know whether Verilog is correct, but a linter and a simulator can. With tool calling, every fix the model proposes is checked by a real tool before I see it. I split the work into a planner and sub-agents so each agent has one tool and one narrow job, which is easier to prompt and to test.\n\nI added retrieval because an answer about a specific part should come from its datasheet, with a citation, not from the model's memory. I kept embeddings in pgvector so I did not need a second database. I measured the tool with injected bugs and an eval set because \"it seems to work\" is not evidence. The CI pipeline is there because a prompt edit can silently change agent behaviour.",
-        result: "Manual lint-simulate-debug iterations dropped by about 60% on 25 Verilog designs. The agents fixed 18 of 25 injected RTL bugs automatically, which is 72%. Cited-answer accuracy rose from 55% to 85% on a 40-question eval set."
-      },
-      results: ["~60% fewer manual debug iterations", "18 of 25 injected bugs fixed (72%)", "Cited answers 55% → 85% accurate"],
-      skills: ["React/TypeScript", "Node.js/Express", "PostgreSQL + pgvector", "LLM tool calling", "Docker", "GitHub Actions"],
-      sprite: "server",
-      photos: [],
-      links: []
-    },
-    {
-      id: "pm-assistant",
-      category: "Software and AI tools",
-      zone: "Task Desk",
-      title: "AI Project-Management Assistant",
-      date: "Oct 2026",
-      summary: "Turns meeting notes into tracked tasks with owners and due dates, then sends the reminders automatically.",
-      story: {
-        problem: "After a meeting, someone has to turn the notes into tasks with owners and due dates, and then chase them. By hand that took about 15 minutes per meeting, and follow-ups were easy to forget.",
-        action: "I built a React and Node.js app that uses LLM tool calling to extract action items, owners and due dates from meeting notes into PostgreSQL. Scheduled Node.js jobs send Slack and email reminders and write weekly LLM status summaries.",
-        why: "I used tool calling instead of free-text output because I need structured fields that go straight into a database. A function schema forces the model to return exactly a task, an owner and a date. I stored the tasks in a database so they can be tracked and queried afterwards, not just displayed once.\n\nExtraction solves only half the problem. The tasks that slip are the ones nobody is reminded about, so I added scheduled reminders and a weekly summary.",
-        result: "Meeting notes become tracked tasks in under one minute, against about 15 minutes by hand, and follow-ups go out automatically."
-      },
-      results: ["Notes to tasks in < 1 minute (was ~15)", "Automatic follow-ups"],
-      skills: ["React", "Node.js", "LLM APIs", "PostgreSQL"],
-      sprite: "monitor",
+      demo: "debounce",
       photos: [],
       links: []
     },
     {
       id: "travel-assistant",
-      category: "Software and AI tools",
+      category: "Digital, GPU and software",
       zone: "Travel Desk",
-      title: "REST API Travel Assistant",
+      title: "REST API Travel Assistant App",
+      org: "Western University",
       date: "Sep 2025",
-      summary: "A team-built Python travel planner that pulls real-time flights, stays, attractions and restaurants from six REST APIs into one structure.",
+      team: "Team of 5; I built the API request and data-parsing layer",
+      summary: "Our team built a Python app that turns flights, hotels, attractions and restaurants into one itinerary within the user's budget. In testing with 12 students it cut trip planning from about 45 minutes to under 3 minutes.",
+      headline: "Trip planning ~45 min → under 3 min",
+      tools: ["Python", "6 REST APIs", "JSON", "GitHub"],
       story: {
-        problem: "Planning a trip means checking flights, accommodation, attractions and restaurants on separate sites. Our team wanted one tool that pulls real-time data from all of them and plans an itinerary around cost and personal preferences.",
-        action: "In a multidisciplinary team, I led development of a Python travel assistant. I integrated six REST APIs for flights, accommodations, local attractions and restaurants. I wrote the methods that send the requests and parse the JSON responses, organizing flight information such as airline names, airport details and price into a structured dictionary. We worked in a GitHub repository and updated the tool based on user feedback.",
-        why: "Every API returns JSON in its own shape. I parsed each response into a structured dictionary so the rest of the application does not care which provider the data came from. That gave teammates working on the interface and on data analysis a stable structure to build on while I changed the API code underneath. We used a shared repository so several people could work in parallel.",
-        result: "The application served real-time flight, accommodation, attraction and restaurant data from six APIs, and feedback-driven updates made it more robust and easier to use."
+        problem: "Planning even a short trip meant hopping between separate sites for flights, hotels, things to do and places to eat, then adding it all up by hand to see if it fit the budget. Students we talked to spent about 45 minutes doing this for a single trip.\n\nPulling it into one app raised engineering problems. Six different APIs return data in six different formats. Live calls can be slow, time out or come back with fields missing, and an app that freezes or crashes on bad data is worse than the websites it replaces.",
+        steps: [
+          { did: "Connected 6 REST APIs for live flight, hotel, attraction and restaurant data, and cached repeated requests.", why: "Live data keeps prices and availability current. Caching means a repeated or slightly changed search does not wait on the network or burn through API rate limits again." },
+          { did: "Wrote request and JSON-parsing functions that turn raw API responses into structured Python dictionaries (airline, airports, price), with handling for timeouts and missing fields.", why: "One clean, consistent format is what makes sorting and budgeting possible across sources. Handling failures gracefully keeps one bad response from breaking the whole search." },
+          { did: "Ran 2 rounds of user feedback, tracked every issue in GitHub and merged fixes through reviewed pull requests with the design and data teammates.", why: "With 5 people in one codebase, code review stops one person's fix from breaking another's feature. Logging feedback as issues made sure nothing users reported was lost." }
+        ],
+        result: [
+          "Cut trip planning time from about 45 minutes to under 3 minutes in testing with 12 students.",
+          "Returned full trip results in under 4 seconds on average across 50 timed searches.",
+          "Let users sort 60+ flight options per search by price, duration and stops.",
+          "Fixed 25+ bugs and usability issues through 40+ reviewed pull requests."
+        ]
       },
-      results: ["6 REST APIs integrated", "Led development in a multidisciplinary team"],
-      skills: ["Python", "REST APIs", "JSON", "GitHub"],
       sprite: "globe",
-      photos: [],
-      links: []
-    },
-    {
-      id: "vbnet-production",
-      category: "Software and AI tools",
-      zone: "Production Line",
-      title: "VB.NET Production-Control Application",
-      summary: "Generates wire schedules and terminal lists from a bill of materials: proven first as Excel VBA, then rebuilt as object-oriented VB.NET on MySQL.",
-      story: {
-        problem: "Wire schedules and terminal lists for a panel are derived from the bill of materials, and typing them by hand is where a wrong terminal number gets in. I also wanted hands-on practice with the Visual Basic environment that sits behind manufacturing execution tools.",
-        action: "I wrote Excel VBA macros that generate wire schedules and terminal lists from a bill of materials. Then I built a VB.NET production-control application with a MySQL backend, and upgraded the VBA prototype into object-oriented VB.NET.",
-        why: "I started in VBA because it is the fastest way to prove the logic where the data already lives, in Excel. But macros inside a workbook are hard to maintain, and the data stays trapped in one file. Moving to VB.NET with classes gave the code structure, and MySQL gave it one shared source of truth.\n\nThe prototype-then-upgrade path was deliberate. Upgrading and maintaining an existing Visual Basic tool is the real work in production engineering, so I practised exactly that.",
-        result: "A working VB.NET application with a MySQL backend that turns a bill of materials into wire schedules and terminal lists, replacing the macro prototype."
-      },
-      results: ["BOM → wire schedules and terminal lists", "VBA prototype upgraded to object-oriented VB.NET"],
-      skills: ["VB.NET", "MySQL", "Excel VBA"],
-      sprite: "factory",
+      demo: "trip",
       photos: [],
       links: []
     },
 
-    /* ---------------- Power systems ---------------- */
+    /* ---------------- Embedded systems and motors ---------------- */
     {
-      id: "switchgear-13kv",
-      category: "Power systems",
-      zone: "Switchgear Yard",
-      title: "13.8 kV Four-Feeder Switchgear: Single-Line Diagram and Overcurrent Coordination",
-      summary: "The single-line diagram, overcurrent coordination, AC/DC schematics and wiring diagrams for a 13.8 kV, four-feeder switchgear lineup.",
+      id: "dc-motor-pid",
+      category: "Embedded systems and motors",
+      zone: "PID Station",
+      title: "Closed-Loop DC Motor Position Controller",
+      org: "Personal project",
+      date: "Jul 2026",
+      summary: "I built a PID position controller for a DC gearmotor that cut overshoot on 90° steps from 22% to 3%. It holds position to within one encoder count (0.19°).",
+      headline: "Overshoot 22% → 3%; holds position to 0.19°",
+      tools: ["STM32", "C", "MATLAB", "Simulink", "Python", "H-bridge driver", "Quadrature encoder"],
       story: {
-        problem: "A switchgear lineup has two jobs. It delivers power to its feeders, and when there is a fault it disconnects only the faulted feeder and nothing else. I wanted to work through both for a 13.8 kV lineup with four feeders.",
-        action: "I designed the single-line diagram and the overcurrent coordination for the lineup. Then I drafted its AC and DC schematics and its wiring diagrams in AutoCAD.",
-        why: "I started with the single-line diagram because every other drawing derives from it. It shows the source, the bus, the feeders and the protective devices on one page. I did the coordination next because protection is only selective if the device nearest the fault operates first and the upstream device waits. That comes from choosing settings so the time-current curves do not overlap.\n\nThe schematics and wiring diagrams came last. The single-line says what the protection should do, and the wiring diagram is what the shop actually builds from, so an error there travels all the way to the field.",
-        result: "A complete drawing set for the lineup: single-line diagram, overcurrent coordination, AC/DC schematics and wiring diagrams. This is my newest area, and I know there is more to learn about protection and control to CSA and ANSI standards."
+        problem: "In Control Systems coursework I tuned PID loops on paper and in Simulink. I wanted to see how those designs hold up on a real motor, with friction, a PWM output that saturates and an encoder that measures in steps.\n\nThe goal was to make a 12 V, 30:1 gearmotor move to a commanded angle quickly, without overshoot, and stop exactly there. Proportional-only control could not do both: raising the gain for speed caused overshoot, and lowering it left a steady-state error of more than 2°.",
+        steps: [
+          { did: "Built the hardware around an STM32 microcontroller, an H-bridge driving 20 kHz PWM, and a quadrature encoder with 1,920 counts per revolution.", why: "20 kHz is above the range of hearing, so the motor runs without whine, and fast enough to give smooth current. The encoder's 0.19° resolution sets the best accuracy the loop can reach." },
+          { did: "Ran open-loop step tests and fit a first-order motor model in MATLAB.", why: "Tuning by trial and error on hardware is slow and can slam the gearbox. A model let me design the gains first and test them on hardware once." },
+          { did: "Tuned the PID gains in Simulink for a 70° phase margin.", why: "A large phase margin keeps overshoot low and leaves room for what a first-order model misses, such as friction and gear backlash." },
+          { did: "Wrote a discrete PID controller in C running at 1 kHz.", why: "A 1 ms update is about 45 times faster than the motor's 45 ms time constant, so the digital loop behaves like the continuous design." },
+          { did: "Added integrator-clamping anti-windup and a 50 Hz filter on the derivative term.", why: "On long moves the PWM saturates and the integrator keeps growing, which causes overshoot when the motor arrives. The derivative term also magnifies encoder steps into noise, which showed up as PWM chatter at rest." },
+          { did: "Wrote a Python tool to log and plot the board's serial data.", why: "I wanted numbers averaged over 20 trials, not judgments from watching the shaft." }
+        ],
+        result: [
+          "Fit the motor model with a 93% match to measured data, giving a 45 ms time constant.",
+          "On 90° steps, compared with proportional-only control: overshoot fell from 22% to 3% and steady-state error from 2.4° to 0.19° (one encoder count), with a 0.25 s settling time averaged over 20 trials.",
+          "On 360° moves, anti-windup cut overshoot from 18% to 4%.",
+          "The derivative filter reduced PWM chatter at rest from ±8% to ±2%."
+        ]
       },
-      results: ["Complete drawing set", "Selective overcurrent coordination"],
-      skills: ["AutoCAD", "Single-line diagrams", "Protection coordination"],
-      sprite: "switchgear",
-      demo: "feeders",
+      sprite: "gearmotor",
+      demo: "pid",
+      photos: [],
+      links: []
+    },
+    {
+      id: "rfid-lock",
+      category: "Embedded systems and motors",
+      zone: "Access Gate",
+      title: "RFID Door Lock & Lighting Control System",
+      org: "Western University",
+      date: "Apr 2026",
+      team: "Team of 4",
+      summary: "Our team designed an RFID door-access system that accepted all 8 approved card IDs and rejected all 1,016 others in an exhaustive test. It also ran 10,000 consecutive scans with no faults.",
+      headline: "All 1,024 card IDs handled correctly",
+      tools: ["C", "DE10-Standard (ARM Cortex-A9)", "MFRC522 RFID reader (SPI)", "STM32L476"],
+      story: {
+        problem: "We had to design a system that unlocks a door and switches on the room lights only for approved cards, and take it through all 10 design stages, from requirements to a live demo.\n\nThe catch was timing. The RFID reader and relays would not arrive until late in the term, but the firmware had to be written and proven well before then. An access system also has no room for \"mostly works\": a single wrong acceptance is a security failure.",
+        steps: [
+          { did: "Specified the inputs and outputs for all 6 devices: a 13.56 MHz MFRC522 reader over SPI, a manual-override button, door-strike and lighting relays, and red/green status LEDs.", why: "With the interfaces pinned down early, four people could work in parallel without their pieces drifting apart." },
+          { did: "Wrote the C firmware as 4 modules (RFID interface, authentication, lock/light control, user feedback) in a polled loop.", why: "Separate modules meant I could swap the RFID interface for a test stand-in without touching the authentication logic. A polled loop is simple, predictable and fast enough for one reader and human-speed card taps." },
+          { did: "Made the door unlock for 3 seconds, then relock automatically.", why: "Locked is the safe default. The door should never stay open because someone forgot to close it." },
+          { did: "Ran the firmware on a DE10-Standard (ARM Cortex-A9) board before the real hardware existed. Its 10 slide switches stood in for card reads, and its LEDs stood in for the relays.", why: "This let us debug the logic weeks early. Ten switches also give exactly 2¹⁰ = 1,024 IDs, small enough to test every one." },
+          { did: "Tested all 1,024 IDs, then ran 10,000 scans in a row.", why: "The exhaustive test proves there are no false accepts or false rejects. The long run checks for slow failures, such as a stuck state or a lockup." },
+          { did: "Chose the STM32L476 (32-bit, 80 MHz) over the ATmega328P (8-bit, 20 MHz) for the final design.", why: "It shares the prototype's ARM architecture, which makes porting easier. Its 1 MB of flash leaves room to log entries later, and its low-power modes allow battery backup during power outages." }
+        ],
+        result: [
+          "Accepted all 8 approved IDs and rejected all 1,016 others with no errors.",
+          "Completed 10,000 consecutive scans with no faults.",
+          "Delivered all 10 design stages, from requirements through a working live demo.",
+          "Documented a final microcontroller choice that supports entry logging and battery backup as future features."
+        ]
+      },
+      sprite: "door",
+      demo: "rfid",
+      photos: [],
+      links: []
+    },
+    {
+      id: "autonomous-robot",
+      category: "Embedded systems and motors",
+      zone: "Robot Garage",
+      title: "Autonomous Driving Vehicle (Embedded Systems & Computer Vision)",
+      org: "Western University",
+      date: "Jan 2026",
+      summary: "I developed an autonomous robot that stayed in its lane on 90% of test laps with zero collisions. It sorted 24 of 24 objects correctly and finished in 4:10 against a 6:00 limit.",
+      headline: "24 of 24 objects sorted in 4:10 against a 6:00 limit",
+      tools: ["Embedded C++", "IR line sensors", "Ultrasonic sensor", "SolidWorks", "3D printing", "Buck regulator", "Dual H-bridge"],
+      story: {
+        problem: "The robot had to drive a marked course on its own, avoid obstacles, find objects, pick them up, sort each as valuable or non-valuable and bring them home, all within 6 minutes.\n\nEarly test runs exposed two problems beyond the software. The gripper picked up an object only about 60% of the time, and every miss cost a retry and precious seconds. Worse, the microcontroller reset about 3 times per run whenever the drive motors stalled, wiping the robot's progress mid-mission.",
+        steps: [
+          { did: "Wrote embedded C++ that fused IR line-sensor and ultrasonic readings at 20 Hz into a closed-loop PID steering controller, with a 15 cm obstacle-avoidance trigger.", why: "Simple on/off line following zig-zags and drifts out of lane on curves. PID steers in proportion to the error, so corrections are smooth. A 15 cm trigger left enough room to stop or steer around an obstacle at driving speed." },
+          { did: "Built the mission as a state machine in C++ with states for search, retrieval, homing and classification.", why: "The mission is a sequence of distinct behaviours. Explicit states make each transition predictable and let me trace any failure to the one state where it happened." },
+          { did: "Redesigned the servo-driven claw and its mounts in SolidWorks over 3 3D-printed prototypes.", why: "Failed pickups were the biggest drag on our time. Most misses came from objects slipping or being pushed out of the jaws, so each prototype changed the jaw shape and mounting to grip more securely." },
+          { did: "Designed a power-distribution subsystem that separated the 5 V logic rail from the 7.4 V motor rail, using a buck regulator, a dual H-bridge driver, flyback diodes and a 3 A fuse.", why: "Stalled motors drew enough current to drag the shared supply below the microcontroller's brownout threshold. Separate rails isolate the logic, flyback diodes absorb voltage spikes from the motors, and the fuse protects the battery and wiring during a stall." }
+        ],
+        result: [
+          "Stayed within lane boundaries on 18 of 20 test laps (90%) with zero collisions.",
+          "Sorted 24 of 24 objects correctly (100%) across 3 full runs, finishing in 4:10 against the 6:00 limit.",
+          "Raised gripper pickup success from about 60% to 92% (23 of 25 attempts).",
+          "Eliminated brownout resets during motor stalls, from about 3 per run to 0."
+        ]
+      },
+      sprite: "garage",
+      demo: "steer",
+      photos: [],
+      links: []
+    },
+    {
+      id: "bldc-motor",
+      category: "Embedded systems and motors",
+      zone: "Motor Works",
+      title: "Custom BLDC Motor",
+      org: "Western University",
+      date: "Dec 2025",
+      summary: "I designed and built a 12-slot/14-pole brushless DC motor from first principles. It reached 3,000 RPM no-load and 63% efficiency within a 15 V, 5 A, 75 W limit.",
+      headline: "Kv within 6% of design; cogging torque −40%",
+      tools: ["SolidWorks", "3D printing", "14 N52 magnets", "24 AWG magnet wire", "Back-EMF and torque-arm testing"],
+      story: {
+        problem: "The challenge was to design a working BLDC motor from scratch, with the stator, rotor and windings sized by calculation, and a structure made from 3D-printed parts. It had to stay within a 15 V, 5 A, 75 W supply.\n\nThree things could sink it. The winding design had to land the speed constant (Kv) where the calculations said, or the motor would be too slow or draw too much current. 3D printers do not print to exact dimensions, yet the rotor–stator air gap had to hold at 0.8 mm. And the first build had noticeable cogging, a notchy torque ripple that made low-speed startup jerky.",
+        steps: [
+          { did: "Chose a 12-slot/14-pole layout.", why: "This combination has a high winding factor, so most of the copper contributes torque. Its slot and pole counts also share few common factors, which naturally keeps cogging low." },
+          { did: "Wound 35 turns of 24 AWG per tooth in a Wye configuration.", why: "The number of turns sets Kv, so I calculated it to hit the target speed at 15 V. Wye gives more back-EMF per RPM than Delta, so the motor makes its torque with less current, keeping full load well under the 5 A limit." },
+          { did: "Modelled the housing, rotor bell and bearing seats in SolidWorks as a 6-part assembly, and refined press-fit clearances (+0.2 mm) over 3 print iterations.", why: "Too wide a gap weakens the magnetic field, and too narrow a gap lets the rotor rub. Printed parts come out slightly off size, so the clearances had to be tuned by test prints, not just set in CAD." },
+          { did: "Redesigned the magnet holder to space the 14 N52 magnets at a 0.8 pole-arc ratio.", why: "Cogging comes from magnet edges lining up with the gaps between stator teeth. Narrowing each magnet's arc relative to its pole spacing smooths that interaction." },
+          { did: "Verified the design with a back-EMF test and a 100 mm torque arm on a digital scale.", why: "These are cheap, repeatable ways to check Kv and torque directly against the calculations." }
+        ],
+        result: [
+          "Reached 3,000 RPM no-load and 63% efficiency at 0.12 N·m and 2,300 RPM (29 W out from 46 W in).",
+          "Measured Kv at 215 RPM/V against a calculated 228 RPM/V, within 6%.",
+          "Kept full-load current at 3.1 A, under the 5 A limit.",
+          "Held the 0.8 mm air gap across the 6-part printed assembly.",
+          "Cut cogging torque by 40% (12 → 7 mN·m), giving smoother low-speed startup."
+        ]
+      },
+      sprite: "motor",
+      demo: "turns",
+      photos: [],
+      links: []
+    },
+
+    /* ---------------- Analog, PCB and signal processing ---------------- */
+    {
+      id: "bjt-amplifier",
+      category: "Analog, PCB and signal processing",
+      zone: "Amp Stage",
+      title: "Discrete BJT Audio Amplifier Design & Characterization",
+      org: "Western University",
+      date: "Sep 2026",
+      summary: "I designed, simulated and bench-tested 6 discrete BJT amplifier circuits, from single gain stages to a speaker output stage. The Class AB output stage delivered about 0.85 W RMS into 8.2 Ω, 1.7× the 500 mW spec.",
+      headline: "0.85 W RMS output, 1.7× the spec",
+      tools: ["Altium (simulation)", "2N3904", "2N2222", "MJE800/MJE700 Darlingtons", "Oscilloscope", "Function generator", "DMM"],
+      story: {
+        problem: "The goal was a speaker amplifier built from individual transistors, with a 500 mW output spec and response down to 20 Hz. Each stage had to be designed by hand, simulated and then proven on the bench.\n\nSeveral classic problems stood in the way. A single gain stage loses almost all its gain when driving a low-impedance speaker. A simple Class B output stage distorts small signals where it hands off between transistors. And real transistors vary, so the design had to work with whatever parts came out of the bin.",
+        steps: [
+          { did: "Set every bias point by hand analysis first, then simulated in Altium, then measured on the bench.", why: "Hand analysis shows why a circuit works and gives an independent check on the simulator. When the bench disagreed, I could tell which assumption had failed." },
+          { did: "Biased a 2N3904 common-emitter stage at 5 mA / 5 V for about 40 dB of midband gain, then added an emitter-follower buffer.", why: "I measured the gain dropping about 38 dB into an 8 Ω speaker, because the stage's output resistance is far higher than the load. An emitter follower has high input and very low output resistance, so it passes the signal on almost unchanged." },
+          { did: "Built a ±6 V Class AB push-pull output stage with MJE800/MJE700 Darlingtons and a 3-diode bias network at 5 mA.", why: "The Class B version had a ±1.3 V dead zone around zero, the two base-emitter drops of each Darlington. Diode biasing holds the transistors just at the edge of conduction, removing most of that gap while keeping efficiency far above Class A." },
+          { did: "Traced the bass roll-off to the output coupling capacitor and calculated the fix.", why: "The 470 µF capacitor and 8.2 Ω load form a high-pass filter with a cutoff near 40 Hz, matching the measured −3 dB point. Meeting the 20 Hz spec needs about 1,000 µF." },
+          { did: "Designed a ±10 V differential amplifier with a current-source tail (I_EE = 4 mA).", why: "A current source holds the tail current steady when both inputs move together, which gives far better rejection of common-mode noise than a simple tail resistor." },
+          { did: "Built a shunt-shunt feedback transresistance amplifier to test feedback theory against measurements.", why: "I wanted to measure, not just assume, what negative feedback buys: stable gain, lower output resistance and wider bandwidth." }
+        ],
+        result: [
+          "Measured Q-points landed within 10–15% of target across all 6 circuits.",
+          "The emitter-follower buffer measured Av ≈ 0.99, Rin ≈ 9 kΩ and Rout ≈ 5 Ω.",
+          "The Class AB stage delivered about 0.85 W RMS into 8.2 Ω (1.7× the 500 mW spec) at about 48% efficiency, and largely removed the crossover dead zone.",
+          "The differential amplifier gave about 26 dB single-ended gain, about 170 kHz bandwidth and about 79 dB CMRR at 1 kHz, with complementary 0°/180° outputs verified from 50 Hz to 1 MHz.",
+          "With a loop factor (1 + Aβ) ≈ 8, closed-loop gain matched theory within 1%. Output resistance fell from 2.9 kΩ to 365 Ω, bandwidth grew about 8× (194 kHz → 1.5 MHz), and gain held within 1% when swapping a 2N3904 for a 2N2222."
+        ]
+      },
+      sprite: "speaker",
+      demo: "crossover",
+      photos: [],
+      links: []
+    },
+    {
+      id: "pcb-shield",
+      category: "Analog, PCB and signal processing",
+      zone: "Plant Station",
+      title: "PCB Design: Arduino UNO Sensor & Actuator Shield",
+      org: "Western University",
+      date: "Jan 2026",
+      summary: "I designed a single-layer Arduino UNO shield for an automated plant-care station that connects 11 peripherals and passed DRC with zero violations. It drives a 12 V/2 A solenoid valve on the same board as the 5 V logic with zero Arduino resets.",
+      headline: "0 resets across 50 solenoid actuations",
+      tools: ["Altium Designer", "C++", "Arduino UNO", "ESP32", "Optocoupled relay"],
+      story: {
+        problem: "The shield had to monitor soil moisture, temperature and humidity, water level, light and tilt, and open a 12 V solenoid valve to water the plant. Everything had to fit within the standard 68.6 × 53.3 mm UNO footprint on a single copper layer, which is cheaper and faster to fabricate.\n\nThe hardest part was power. A 12 V/2 A solenoid draws a heavy surge when it switches and kicks back a voltage spike when it turns off. On a board shared with 5 V logic, that is a recipe for random microcontroller resets. The readings also had to reach a web dashboard, which the UNO cannot serve on its own.",
+        steps: [
+          { did: "Laid out the board on one layer in Altium, with 45° traces, a 12 V rail widened to 40 mil and 3 jumper bridges to close the ground net.", why: "A 40 mil trace carries 2 A with little heating. Three jumpers solved the few crossings a single layer cannot route, at far lower cost than moving to a two-layer board." },
+          { did: "Isolated the solenoid behind an optocoupled relay on an external DC rail, and stepped sensor voltages down with resistive dividers.", why: "The optocoupler means the solenoid's current and voltage spikes never touch the Arduino's supply or pins. The dividers keep each sensor's output within the safe input range of the pin reading it." },
+          { did: "Brought up the 45-component through-hole board methodically, checking each fault with continuity tests against the schematic.", why: "Powering up a board with a short can destroy parts. Testing every suspect net against the schematic found faults without guesswork." },
+          { did: "Wrote C++ firmware that polls 5 sensors and streams the readings to an ESP32 web server every 2 s over 9600-baud UART.", why: "The ESP32 adds Wi-Fi the UNO lacks, and UART is the simplest link between them. A 2 s update suits slow-changing plant conditions and respects the DHT11's roughly once-per-second sampling limit." }
+        ],
+        result: [
+          "Fit all 11 peripherals within the 68.6 × 53.3 mm UNO footprint on one layer, with zero DRC violations.",
+          "Ran the 12 V/2 A solenoid with zero Arduino resets across 50 back-to-back actuations.",
+          "Took the board from first power-on to fully working, fixing 2 power-rail shorts and 3 open traces.",
+          "Streamed live readings from 5 sensors (capacitive moisture, DHT11, HC-SR04, LDR, tilt) to the ESP32 web server every 2 s."
+        ]
+      },
+      sprite: "planter",
+      demo: "plant",
+      photos: [],
+      links: []
+    },
+    {
+      id: "function-generator",
+      category: "Analog, PCB and signal processing",
+      zone: "Signal Lab",
+      title: "Function Generator: PCB Design & Circuit Simulation",
+      org: "Western University",
+      date: "Jan 2025",
+      summary: "I designed and built a function generator with sine, square and triangle outputs from 10 Hz to 10 kHz. It worked on the first fabrication run with no layout revisions.",
+      headline: "Worked on the first fabrication run; sine THD under 3%",
+      tools: ["EAGLE", "Micro-Cap (SPICE)", "Op-amps", "Oscilloscope (FFT)", "Multimeter"],
+      story: {
+        problem: "The brief was a bench function generator covering three decades of frequency with three waveforms, built on a custom PCB. Board fabrication takes weeks, and a respin costs both time and money, so the design had to be right before it was sent out.\n\nThe waveform quality also mattered. A sine wave made by shaping a triangle is only an approximation, and a square wave's duty cycle drifts if the oscillator is not symmetric.",
+        steps: [
+          { did: "Built an op-amp relaxation oscillator feeding an integrator, with a diode wave-shaping network for the sine, across 3 switchable ranges.", why: "One oscillator produces the square wave, the integrator turns it into a triangle, and the shaper rounds that into a sine. All three outputs then track the same frequency. Switching ranges covers three decades without an impractically wide tuning control." },
+          { did: "Checked the design with hand calculations and Micro-Cap transient simulations at 6 test frequencies before fabrication.", why: "Two independent predictions catch mistakes that either one alone would miss, and catching them on screen is far cheaper than in copper." },
+          { did: "Laid out a 2-layer PCB in EAGLE.", why: "The second layer made room for clean routing and a solid ground return, which keeps noise off the analog signals." },
+          { did: "Assembled and soldered about 35 components and debugged bring-up with an oscilloscope and multimeter.", why: "Checking supply rails first, then each stage in signal order, isolates any fault to one block." },
+          { did: "Tuned the diode wave-shaping network while measuring distortion with the oscilloscope's FFT.", why: "How closely the shaped triangle resembles a sine depends on where the diodes start conducting. That is easiest to dial in by measurement rather than calculation alone." }
+        ],
+        result: [
+          "Produced sine, square and triangle outputs from 10 Hz to 10 kHz across 3 switchable ranges.",
+          "Predicted output frequency within ±5% of bench measurements at all 6 test points.",
+          "Got a working board on the first fabrication run, with no layout revisions.",
+          "Measured a sine output with under 3% THD and a square wave with a 50 ± 2% duty cycle."
+        ]
+      },
+      sprite: "oscilloscope",
+      demo: "waveforms",
+      photos: [],
+      links: []
+    },
+    {
+      id: "iir-filter",
+      category: "Analog, PCB and signal processing",
+      zone: "Filter Lab",
+      title: "Digital IIR Filter Design by Pole-Zero Placement",
+      org: "Western University",
+      date: "Apr 2026",
+      summary: "I designed a band-pass and a notch filter at 120 Hz by placing poles and zeros by hand. The band-pass kept 96.3% of its energy within ±8 Hz of 120 Hz, against an 80% spec.",
+      headline: "96.3% in-band energy against an 80% spec",
+      tools: ["MATLAB"],
+      story: {
+        problem: "The signal was sampled at 340 Hz and carried a component at 120 Hz, the second harmonic of 60 Hz mains power and a common interference source. The task needed two opposite filters: a band-pass to isolate that component and a notch to remove it while leaving everything else untouched.\n\nThe constraint was to design both by placing poles and zeros directly, without MATLAB's filter-design tools. That forces a real understanding of how each pole and zero shapes the response. The project also covered what goes wrong when a signal is sampled too slowly.",
+        steps: [
+          { did: "Built the band-pass from 2 complex-conjugate pole pairs and 2 zeros, with a peak gain of 2.0.", why: "Poles placed close to the unit circle at the 120 Hz angle create a sharp peak there. Zeros at 0 Hz and at the Nyquist frequency pull down the response far from the band." },
+          { did: "Built the notch from 4 zero pairs on the unit circle and 4 pole pairs just inside it at the band edges, then solved for the gain b₀.", why: "Zeros on the unit circle give true nulls spread across the ±8 Hz stopband. Poles just inside the circle bring the response back up quickly beyond the band, so the passband stays flat." },
+          { did: "Wrote MATLAB code that calculated the frequency response directly from the poles and zeros and measured in-band energy with trapezoidal integration.", why: "It scored each candidate against the actual spec in seconds, instead of judging plots by eye. That made it practical to try 38 designs." },
+          { did: "Checked both filters with test tones inside, near and far outside each band, and derived each filter's transfer function and difference equation.", why: "Tones prove the filters behave correctly on real signals. The difference equation is the form a microcontroller or DSP would actually run." },
+          { did: "Demonstrated aliasing by sampling a 3-tone signal at 75% of its Nyquist rate, then compared reconstruction methods.", why: "It shows concretely what undersampling destroys and how sinc interpolation compares with zero-order hold, first-order hold and cubic-spline reconstruction." }
+        ],
+        result: [
+          "The band-pass kept 96.3% of its energy within ±8 Hz of 120 Hz (spec: ≥80%) at a peak gain of 2.0. It passed 120 Hz at 2.0× gain and cut 100 Hz by 22 dB.",
+          "The notch held gain below 0.023 across the ±8 Hz stopband and between 0.9 and 1.1 outside ±16 Hz.",
+          "Tested 38 candidate designs quickly with the custom MATLAB evaluator.",
+          "Rebuilt the Nyquist-rate samples with sinc interpolation to within 23% error."
+        ]
+      },
+      sprite: "zplane",
+      demo: "zplane",
+      photos: [],
+      links: []
+    },
+
+    /* ---------------- Machine learning ---------------- */
+    {
+      id: "load-forecast",
+      category: "Machine learning",
+      zone: "Grid Forecast",
+      title: "Day-Ahead Electricity Load Forecasting",
+      org: "Western University",
+      date: "Nov 2026",
+      team: "Team project; I owned model evaluation and test reporting",
+      summary: "We built a pipeline that forecasts the next 24 hours of electricity demand for a distribution zone in Tetouan, Morocco, every hour. The tuned models beat the seasonal-naive baseline by 16–23% in RMSE, and the final model ships as a 139 kB TensorFlow Lite file.",
+      headline: "16–23% lower RMSE than the seasonal-naive baseline",
+      tools: ["Python", "TensorFlow/Keras", "scikit-learn", "TensorFlow Lite", "Git"],
+      story: {
+        problem: "Grid operators schedule generation a day ahead. Over-forecasting wastes reserve capacity, and under-forecasting risks shortfalls, so every kilowatt of error has a cost. We had 52K ten-minute power readings to learn from.\n\nTime-series forecasting has well-known traps. Shuffled splits and scalers fitted on all the data quietly leak the future into training and make models look better than they are. \"Same as yesterday\" is a surprisingly hard baseline to beat for electricity load. And with many architectures to compare, differences in tuning can masquerade as differences in models.",
+        steps: [
+          { did: "Used a time-ordered train/test split, fitted preprocessing on training data only, and validated with rolling-origin cross-validation.", why: "This guarantees no model ever sees information from the period it is predicting, so test scores reflect real forecasting skill." },
+          { did: "Compared 6 neural architectures (MLP, CNN, SimpleRNN, LSTM, GRU, TCN) against linear and seasonal-naive baselines under one shared training protocol.", why: "The same data, budget and stopping rules for every model mean the differences come from architecture, not tuning luck. The baselines show whether deep learning earns its cost at all." },
+          { did: "Added a residual \"anchor\" so the networks learn corrections to yesterday's load profile instead of predicting it from scratch.", why: "Load repeats strongly from day to day. Predicting only the change is an easier target and lets the networks spend their capacity on what actually differs." },
+          { did: "Compared accuracy against training cost for 8 models and investigated where the errors came from.", why: "A single accuracy number hides when and why a model fails. Anyone relying on the forecast needs to know its blind spots." },
+          { did: "Exported the final model to TensorFlow Lite and built checkpointing plus a smoke test that rebuilds forecasts from the raw data.", why: "A small model can run on modest hardware near the grid. Results that cannot be reproduced from scratch cannot be trusted." }
+        ],
+        result: [
+          "The tuned models had 16–23% lower RMSE than the seasonal-naive baseline on the held-out test set.",
+          "The residual anchor lowered validation error by 9–28% across the sequence models.",
+          "Traced a consistent winter over-forecast to two causes: training data covered only January to August, and the inputs did not mark holidays. This points to the next fixes.",
+          "The TensorFlow Lite model is 139 kB and stays within 2.3 kW of the full model.",
+          "Retraining all 90 networks from scratch reproduced every result exactly."
+        ]
+      },
+      sprite: "pylon",
+      demo: "anchor",
+      photos: [],
+      links: []
+    },
+    {
+      id: "transfer-learning",
+      category: "Machine learning",
+      zone: "Vision Lab",
+      title: "Transfer Learning for Image Classification",
+      org: "Western University",
+      date: "Mar 2026",
+      summary: "I compared a from-scratch CNN against 5 transfer-learning setups on CIFAR-10. My 6-layer CNN won at 88.5% test accuracy, and progressive unfreezing came within 0.8 points of it in under half the training time.",
+      headline: "88.5% CIFAR-10 accuracy from a 6-layer CNN",
+      tools: ["PyTorch", "ResNet-50", "CIFAR-10/100", "ImageNet and Places365 weights", "4 GB laptop GPU"],
+      story: {
+        problem: "The usual advice is to start from a pretrained model rather than train from scratch. But ResNet-50 learned its features on 224×224 ImageNet photos, while CIFAR-10 images are only 32×32. I wanted to test whether transfer learning still pays off when the images are that different, and which transfer strategy works best.\n\nTwo practical limits shaped the work. Differences between methods were likely to be under a point, so a single noisy run could crown the wrong winner. And everything had to run on a 4 GB laptop GPU.",
+        steps: [
+          { did: "Designed a 6-layer CNN with batch normalization and dropout as the from-scratch baseline.", why: "Transfer learning only proves its value against a strong baseline. Batch normalization keeps training stable, and dropout limits overfitting on CIFAR-10's 45K training images (50K minus the validation split)." },
+          { did: "Fine-tuned an ImageNet-pretrained ResNet-50 two ways: training the head only, and progressively unfreezing deeper layers.", why: "This tests whether frozen ImageNet features work as-is on tiny images, or need to be adapted." },
+          { did: "Tried a Places365-pretrained ResNet-50.", why: "Places365 is a scene dataset, so it tests whether the source domain matters, not just pretraining in general." },
+          { did: "Compared direct transfer with a two-stage route (ImageNet → CIFAR-100 → CIFAR-10).", why: "CIFAR-100 matches CIFAR-10's image size and style, so it tests whether an intermediate step bridges the gap." },
+          { did: "Locked down a fair, repeatable protocol: fixed seeds, 3 runs per setup reported as mean ± std, a 10% validation split for early stopping, and the same AdamW optimizer and stopping rules for every method.", why: "With differences this small, only repeated runs under identical rules can separate a real effect from noise." },
+          { did: "Used mixed precision, channels-last memory and pinned-memory loading.", why: "These cut runtime and memory so ResNet-50 experiments fit on a 4 GB GPU." }
+        ],
+        result: [
+          "The scratch CNN reached 88.5% test accuracy (±0.05 points over 3 seeds), the best of all 6 setups.",
+          "Freezing the pretrained backbone failed on 32×32 images: head-only fine-tuning reached only 46.9%. Progressive unfreezing reached 87.8%, within 0.8 points of the scratch CNN in under half its training time (539 s vs. 1,146 s).",
+          "Places365 weights reached 82.2%, 6.3 points below the scratch CNN, showing the source domain matters.",
+          "The extra CIFAR-100 stage gained only 0.3 points over direct ImageNet transfer (87.0% vs. 86.7%), not enough to justify the added training."
+        ]
+      },
+      sprite: "camera",
+      demo: "transfer",
+      photos: [],
+      links: []
+    },
+    {
+      id: "vae-dcgan",
+      category: "Machine learning",
+      zone: "Gen Gallery",
+      title: "Generative Image Modeling: VAE vs. DCGAN",
+      org: "Western University",
+      date: "Feb 2026",
+      summary: "I trained a convolutional VAE and a DCGAN on 28×28 clothing images under identical conditions. The DCGAN cut image-quality error (FID) by 51%, from 66.8 to 32.9, and covered all 10 clothing classes with no mode collapse.",
+      headline: "FID cut 51% (66.8 → 32.9)",
+      tools: ["Python", "PyTorch", "torchmetrics (FID, PSNR, SSIM)", "Matplotlib", "Fashion-MNIST"],
+      story: {
+        problem: "VAEs and GANs are the two classic ways to generate images, and their reputations are well known: VAEs are stable but blurry, while GANs are sharp but can be unstable or get stuck producing only a few kinds of output (mode collapse). I wanted to measure these trade-offs on the same data rather than rely on side-by-side impressions.\n\nThe hard part was choosing fair metrics. A single image-quality score can look good even if a model never generates some classes at all.",
+        steps: [
+          { did: "Built a convolutional VAE that compresses each 784-pixel image into a 32-number code.", why: "It tests how much of an image a compact code preserves, measured with PSNR and SSIM on reconstructions." },
+          { did: "Trained both models for the same 9,380 steps on the same data split.", why: "An equal training budget means any gap in results comes from the model design." },
+          { did: "Scored image quality with FID on 5,000 generated vs. 5,000 real images, and scored two sets of real images against each other as a floor.", why: "FID is the standard measure. The real-vs-real score of 5.1 shows the best value achievable at this sample size, which puts both models' numbers in context." },
+          { did: "Trained my own CNN classifier (89.6% accurate) and used it to label 10,000 samples from each model.", why: "The class mix of generated samples shows directly whether a model covers every type of clothing or has collapsed onto a few. FID alone cannot show this." },
+          { did: "Tracked discriminator loss through training.", why: "A GAN that is diverging usually shows it there first, so a steady loss is evidence of stable training." }
+        ],
+        result: [
+          "The VAE compressed each image 24.5× and rebuilt images at 18.8 dB PSNR and 0.78 SSIM across all 10,000 validation images.",
+          "The DCGAN cut FID from 66.8 to 32.9 (51% lower), against a best achievable of 5.1.",
+          "The DCGAN covered all 10 classes at 7.3–12.0% each, close to the 10% in the real data. The VAE made only 3.0% sandals, because its blur smears thin straps into solid shoes.",
+          "The GAN trained stably, with discriminator loss holding at 1.06–1.11 from epoch 5 to 20. It used 46% fewer parameters (0.91M vs. 1.70M) but took 3.4× longer to train."
+        ]
+      },
+      sprite: "gallery",
+      demo: "blur",
+      photos: [],
+      links: []
+    },
+    {
+      id: "housing-forecast",
+      category: "Machine learning",
+      zone: "Permit Office",
+      title: "Predictive Analysis of U.S. Housing Markets",
+      org: "Western University",
+      date: "Sep 2025",
+      summary: "I built a deep learning pipeline that cut 12-month forecast error by 18% (RMSE) against a tuned SARIMA baseline, using 60+ years of monthly U.S. building-permit data.",
+      headline: "18% lower RMSE than a tuned SARIMA",
+      tools: ["Python", "Keras", "Keras Tuner", "Optuna", "T4 GPU", "U.S. Census building-permit data"],
+      story: {
+        problem: "Building permits are a leading indicator of housing supply: they show where construction is heading months before homes are built. A reliable 12-month forecast helps planners, builders and investors see that supply coming.\n\nSARIMA, the standard statistical model for seasonal series, is the benchmark to beat. But many regional series are sparse and swing sharply, which SARIMA handles poorly. Deep models can do better, but they are expensive to tune and easy to overrate with a single lucky test split.",
+        steps: [
+          { did: "Benchmarked RNN, GRU and Temporal Convolutional Network (TCN) models against a tuned SARIMA baseline.", why: "Tuning SARIMA properly keeps the comparison honest. The three deep models cover different ways of capturing long seasonal patterns, from recurrent memory to the TCN's dilated convolutions." },
+          { did: "Ran 200+ Bayesian optimization trials with Keras Tuner and Optuna, using median pruning, on a T4 GPU.", why: "Bayesian search spends trials on promising settings instead of sampling blindly. Median pruning stops trials that are already behind the pack, so less GPU time is wasted on dead ends." },
+          { did: "Picked the model by its error on the sparse, high-variance regional series.", why: "Those are the series where SARIMA struggles most and where a better forecast adds the most value." },
+          { did: "Validated with walk-forward testing across 5 rolling windows instead of one train/test split.", why: "One split can land on an unusually calm or unusually volatile period. Walk-forward testing mimics how the model would actually be used, forecasting forward from each point in time." }
+        ],
+        result: [
+          "Reduced 12-month forecast error by 18% (RMSE) against the tuned SARIMA baseline.",
+          "Cut hyperparameter search time by about 40%.",
+          "Selected a TCN, which had the lowest error on the sparse, high-variance regional series.",
+          "Confirmed the gains held out-of-sample across 5 rolling test windows."
+        ]
+      },
+      sprite: "houses",
+      demo: "walkforward",
       photos: [],
       links: []
     }

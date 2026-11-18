@@ -7,10 +7,10 @@
   var CW = (window.CW = window.CW || {});
   var T = 16;                       // tile size in world pixels
   var BW = 6, BH = 4;               // building size in tiles
-  var PER_ROW = 4, PITCH_X = 8;     // buildings per row inside a district, and their spacing
+  var PER_ROW = 4, PITCH_X = 7;     // buildings per row inside a district, and their spacing
   var ROW_H = 8, LABEL_H = 2;       // height of one building row, and of the district name band
-  var COLS = 74, TRUNK = 37;        // board width; x of the vertical trunk
-  var DW = 32, COL_X = [2, 40];     // district width; x of the left and right district columns
+  var COLS = 66, TRUNK = 33;        // board width; x of the vertical trunk
+  var DW = 29, COL_X = [2, 35];     // district width; x of the left and right district columns
   var HUB_W = 18, HUB_H = 6;
 
   /* Cut each corner at 45 degrees, the way PCB traces are routed. */
@@ -50,7 +50,7 @@
     });
     groups.forEach(function (gr) {
       var n = gr.projects.length;
-      gr.slots = n % PER_ROW ? n + 1 : n;            // one "coming soon" socket when the last row has room
+      gr.slots = n;
       gr.rows = Math.max(1, Math.ceil(gr.slots / PER_ROW));
       gr.h = LABEL_H + gr.rows * ROW_H;
     });
@@ -61,15 +61,16 @@
     var above = Math.ceil(pairs.length / 2);
     var y = 2, hubTop = -1;
     pairs.forEach(function (pair, pi) {
-      if (pi === above) { hubTop = y + 1; y = hubTop + HUB_H + 4; }
+      if (pi === above) { hubTop = y + 1; y = hubTop + HUB_H + 3; }
       var ph = 0;
       pair.forEach(function (gr, side) {
         gr.x = COL_X[side]; gr.y = y; gr.above = pi < above;
         ph = Math.max(ph, gr.h);
       });
-      y += ph + 2;
+      y += ph + 1;
     });
-    if (hubTop < 0) { hubTop = y + 1; y = hubTop + HUB_H + 4; }
+    if (hubTop < 0) { hubTop = y + 1; y = hubTop + HUB_H + 3; }
+    y += 1;
     var ROWS = y + 1;
     var hubBottom = hubTop + HUB_H;
 

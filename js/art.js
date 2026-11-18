@@ -502,6 +502,117 @@
   };
   for (var mk in MORE) BUILD[mk] = MORE[mk];
 
+  var MORE2 = {
+    /* a graphics card with two fans */
+    gpu: function (g, x, y) {
+      px(g, "#9AA1B5", x + 2, y + 8, 3, 48);
+      px(g, "#1F2430", x + 5, y + 8, 87, 42); px(g, "#2D3444", x + 5, y + 8, 87, 2); px(g, "#111318", x + 5, y + 48, 87, 2);
+      [x + 29, x + 67].forEach(function (cx) {
+        disc(g, "#33343F", cx, y + 29, 16); disc(g, "#111318", cx, y + 29, 14);
+        for (var b = 0; b < 6; b++) {
+          var a = b * Math.PI / 3;
+          poly(g, "#6B7280", [[cx, y + 29], [cx + Math.cos(a) * 13, y + 29 + Math.sin(a) * 13], [cx + Math.cos(a + 0.55) * 13, y + 29 + Math.sin(a + 0.55) * 13]]);
+        }
+        disc(g, PAL.gold, cx, y + 29, 4);
+      });
+      px(g, "#0F5132", x + 10, y + 50, 78, 6);
+      for (var i = 0; i < 17; i++) px(g, PAL.gold, x + 14 + i * 4, y + 56, 3, 5);
+      px(g, "#5CFF9D", x + 84, y + 11, 4, 2);
+    },
+    /* a gearmotor with an encoder disc and an angle dial on its shaft */
+    gearmotor: function (g, x, y) {
+      px(g, "#4B5563", x + 4, y + 52, 88, 7); px(g, "#6B7280", x + 4, y + 52, 88, 2);
+      disc(g, "#111318", x + 16, y + 36, 11);
+      for (var i = 0; i < 12; i++) { var a = i * Math.PI / 6; px(g, PAL.gold, x + 16 + Math.cos(a) * 8 - 1, y + 36 + Math.sin(a) * 8 - 1, 2, 2); }
+      px(g, "#B7BDCB", x + 20, y + 24, 32, 26); px(g, "#D5D9E2", x + 20, y + 24, 32, 3); px(g, "#8A8F9E", x + 20, y + 47, 32, 3);
+      px(g, "#33343F", x + 52, y + 26, 14, 22); px(g, "#4B4C59", x + 52, y + 26, 14, 2);
+      px(g, "#C9CCD6", x + 66, y + 35, 6, 4);
+      g.strokeStyle = PAL.silk; g.lineWidth = 2; g.beginPath(); g.arc(x + 82, y + 37, 11, Math.PI, 0); g.stroke();
+      seg(g, "#D94C4C", 2, [[x + 82, y + 37], [x + 89, y + 29]]); disc(g, "#33343F", x + 82, y + 37, 3);
+      px(g, "#174EA6", x + 22, y + 8, 32, 13); px(g, "#2466CC", x + 22, y + 8, 32, 2);
+      px(g, "#111318", x + 34, y + 11, 12, 8); px(g, PAL.gold, x + 26, y + 12, 4, 4); px(g, "#5CFF9D", x + 49, y + 12, 3, 3);
+      seg(g, "#D94C4C", 1, [[x + 30, y + 21], [x + 30, y + 24]]); seg(g, "#111318", 1, [[x + 44, y + 21], [x + 44, y + 24]]);
+    },
+    /* a door with an RFID reader, status LEDs and a room light */
+    door: function (g, x, y) {
+      px(g, "#8A8F9E", x + 20, y + 2, 46, 58); px(g, "#9AA1B5", x + 20, y + 2, 46, 2);
+      px(g, "#6B4A2B", x + 24, y + 6, 38, 54);
+      px(g, "#5A3E24", x + 28, y + 10, 30, 20); px(g, "#7E5A36", x + 30, y + 12, 26, 16);
+      px(g, "#5A3E24", x + 28, y + 34, 30, 22); px(g, "#7E5A36", x + 30, y + 36, 26, 18);
+      px(g, PAL.gold, x + 55, y + 31, 4, 4);
+      px(g, "#111318", x + 70, y + 20, 16, 24); px(g, "#33343F", x + 72, y + 22, 12, 13);
+      g.strokeStyle = "#7FD4FF"; g.lineWidth = 1.5;
+      for (var r = 3; r <= 7; r += 4) { g.beginPath(); g.arc(x + 78, y + 32, r, -Math.PI * 0.8, -Math.PI * 0.2); g.stroke(); }
+      px(g, "#2BB673", x + 72, y + 38, 4, 3); px(g, "#D94C4C", x + 80, y + 38, 4, 3);
+      px(g, "#F2F2F2", x + 76, y + 47, 16, 10); px(g, "#3B82F6", x + 76, y + 49, 16, 2);
+      disc(g, "#FFD166", x + 10, y + 14, 6); px(g, "#9AA1B5", x + 8, y + 20, 4, 4);
+      g.globalAlpha = 0.35; disc(g, "#FFD166", x + 10, y + 14, 9); g.globalAlpha = 1;
+    },
+    /* an amplifier with output transistors, beside a speaker cabinet */
+    speaker: function (g, x, y) {
+      px(g, "#2B2118", x + 52, y + 4, 40, 56); px(g, "#3A2C20", x + 52, y + 4, 40, 2);
+      disc(g, "#111318", x + 72, y + 23, 14); disc(g, "#33343F", x + 72, y + 23, 10); disc(g, "#6B7280", x + 72, y + 23, 3);
+      disc(g, "#111318", x + 72, y + 47, 8); disc(g, "#33343F", x + 72, y + 47, 5);
+      px(g, "#9AA1B5", x + 4, y + 30, 44, 28); px(g, "#B7BDCB", x + 4, y + 30, 44, 2); px(g, "#7C8394", x + 4, y + 56, 44, 2);
+      disc(g, "#33343F", x + 15, y + 44, 5); disc(g, "#33343F", x + 30, y + 44, 5);
+      px(g, "#C9CCD6", x + 14, y + 40, 2, 4); px(g, "#C9CCD6", x + 29, y + 40, 2, 4);
+      px(g, "#D94C4C", x + 40, y + 36, 4, 4);
+      for (var i = 0; i < 3; i++) { px(g, "#C9CCD6", x + 9 + i * 13, y + 12, 9, 5); px(g, "#111318", x + 9 + i * 13, y + 17, 9, 11); px(g, "#C9CCD6", x + 11 + i * 13, y + 28, 1, 2); px(g, "#C9CCD6", x + 15 + i * 13, y + 28, 1, 2); }
+      seg(g, PAL.gold, 1.5, [[x + 48, y + 44], [x + 52, y + 44]]);
+    },
+    /* the sensor shield beside a potted plant, with a water line from the valve */
+    planter: function (g, x, y) {
+      px(g, "#174EA6", x + 4, y + 30, 50, 28); px(g, "#2466CC", x + 4, y + 30, 50, 2); px(g, "#0F3A80", x + 4, y + 56, 50, 2);
+      pinsH(g, x + 8, y + 33, 42, 8, PAL.gold);
+      px(g, "#111318", x + 9, y + 41, 10, 8); px(g, "#EDEFF5", x + 23, y + 40, 11, 11); px(g, "#9AA1B5", x + 25, y + 42, 7, 2);
+      px(g, "#2BB673", x + 38, y + 42, 11, 6); px(g, "#D94C4C", x + 44, y + 51, 4, 3);
+      px(g, "#9AA1B5", x + 28, y + 22, 36, 3); px(g, "#9AA1B5", x + 28, y + 22, 3, 18); px(g, "#33343F", x + 26, y + 19, 7, 5);
+      px(g, "#7FD4FF", x + 62, y + 27, 3, 5);
+      poly(g, "#B5653A", [[x + 60, y + 38], [x + 90, y + 38], [x + 86, y + 60], [x + 64, y + 60]]);
+      px(g, "#C97B4A", x + 58, y + 36, 34, 4); px(g, "#4A3426", x + 60, y + 37, 30, 2);
+      seg(g, "#2E8B3E", 2, [[x + 75, y + 37], [x + 75, y + 12]]);
+      poly(g, "#3FAE52", [[x + 75, y + 30], [x + 61, y + 22], [x + 65, y + 32]]);
+      poly(g, "#3FAE52", [[x + 75, y + 24], [x + 91, y + 14], [x + 87, y + 26]]);
+      poly(g, "#4CC761", [[x + 75, y + 15], [x + 67, y + 3], [x + 80, y + 9]]);
+      px(g, "#C9CCD6", x + 84, y + 28, 2, 12);
+    },
+    /* a monitor showing poles and zeros around the unit circle */
+    zplane: function (g, x, y) {
+      px(g, "#6B7280", x + 42, y + 54, 12, 6); px(g, "#4B5563", x + 30, y + 59, 36, 3);
+      px(g, "#111318", x + 10, y + 2, 76, 52); px(g, "#04140E", x + 14, y + 6, 68, 44);
+      px(g, "#0E3A29", x + 14, y + 28, 68, 1); px(g, "#0E3A29", x + 48, y + 6, 1, 44);
+      g.strokeStyle = "#7FD4FF"; g.lineWidth = 1.5; g.beginPath(); g.arc(x + 48, y + 28, 18, 0, Math.PI * 2); g.stroke();
+      var a = 2 * Math.PI * 120 / 340, r = 15;
+      [-1, 1].forEach(function (sgn) {
+        var cx = x + 48 + r * Math.cos(a), cy = y + 28 - sgn * r * Math.sin(a);
+        seg(g, "#FFD166", 2, [[cx - 3, cy - 3], [cx + 3, cy + 3]]); seg(g, "#FFD166", 2, [[cx - 3, cy + 3], [cx + 3, cy - 3]]);
+      });
+      g.strokeStyle = "#5CFF9D"; g.lineWidth = 1.5;
+      [x + 66, x + 30].forEach(function (cx) { g.beginPath(); g.arc(cx, y + 28, 3, 0, Math.PI * 2); g.stroke(); });
+    },
+    /* two framed images: a blurry one and a sharp one */
+    gallery: function (g, x, y) {
+      px(g, "#6B7280", x + 2, y + 56, 92, 4);
+      px(g, PAL.goldDark, x + 6, y + 8, 38, 46); px(g, "#F2F2F2", x + 10, y + 12, 30, 38);
+      g.globalAlpha = 0.35; px(g, "#6B7280", x + 13, y + 17, 24, 28); g.globalAlpha = 0.6; px(g, "#6B7280", x + 16, y + 20, 18, 22); g.globalAlpha = 1;
+      px(g, PAL.goldDark, x + 52, y + 8, 38, 46); px(g, "#F2F2F2", x + 56, y + 12, 30, 38);
+      poly(g, "#4F2683", [[x + 62, y + 18], [x + 66, y + 16], [x + 76, y + 16], [x + 80, y + 18], [x + 84, y + 24], [x + 80, y + 27], [x + 78, y + 25], [x + 78, y + 44], [x + 64, y + 44], [x + 64, y + 25], [x + 62, y + 27], [x + 58, y + 24]]);
+      px(g, "#F2F2F2", x + 68, y + 16, 6, 3);
+    },
+    /* two houses beside a stamped building permit */
+    houses: function (g, x, y) {
+      px(g, "#6B7280", x + 2, y + 58, 92, 3);
+      px(g, "#E6E8EF", x + 6, y + 34, 26, 24); poly(g, "#B5653A", [[x + 3, y + 35], [x + 19, y + 21], [x + 35, y + 35]]);
+      px(g, "#6B4A2B", x + 16, y + 46, 6, 12); px(g, "#7FD4FF", x + 9, y + 39, 5, 5); px(g, "#7FD4FF", x + 24, y + 39, 5, 5);
+      px(g, "#D5C4A1", x + 38, y + 30, 28, 28); poly(g, "#4F2683", [[x + 35, y + 31], [x + 52, y + 16], [x + 69, y + 31]]);
+      px(g, "#6B4A2B", x + 48, y + 44, 7, 14); px(g, "#7FD4FF", x + 41, y + 36, 5, 5); px(g, "#7FD4FF", x + 58, y + 36, 5, 5);
+      px(g, "#F2F2F2", x + 72, y + 18, 20, 26); px(g, "#9AA1B5", x + 75, y + 22, 14, 2); px(g, "#9AA1B5", x + 75, y + 27, 10, 2); px(g, "#9AA1B5", x + 75, y + 32, 12, 2);
+      g.strokeStyle = "#D94C4C"; g.lineWidth = 2; g.beginPath(); g.arc(x + 85, y + 38, 4, 0, Math.PI * 2); g.stroke();
+      px(g, "#5CFF9D", x + 72, y + 48, 4, 8); px(g, "#5CFF9D", x + 78, y + 44, 4, 12); px(g, "#5CFF9D", x + 84, y + 46, 4, 10); px(g, "#5CFF9D", x + 90, y + 40, 4, 16);
+    }
+  };
+  for (var mk2 in MORE2) BUILD[mk2] = MORE2[mk2];
+
   function drawBuilding(g, type, x, y) {
     if (type !== "empty") { g.fillStyle = "rgba(0,0,0,0.28)"; g.fillRect(x + 6, y + 60, 88, 7); }
     (BUILD[type] || BUILD.chip)(g, x, y);
